@@ -584,12 +584,12 @@
       <p style="font-size:12px;color:#888;margin-bottom:12px;">Who hosts every session? Pick one to start. More characters coming soon.</p>
       <div style="display:flex;gap:16px;justify-content:center;margin-bottom:12px;">
         <div style="text-align:center;cursor:pointer;" onclick="selectCharacter('puppy')" id="charPick-puppy">
-          <div id="charPreview-puppy" style="border:3px solid #0D7377;border-radius:16px;padding:6px;background:#E8F7F7;min-height:110px;display:flex;align-items:center;justify-content:center;overflow:hidden;"></div>
+          <div id="charPreview-puppy" style="border:3px solid #0D7377;border-radius:16px;padding:8px;background:#E8F7F7;display:inline-block;"></div>
           <div style="font-size:12px;font-weight:700;color:#0D7377;margin-top:4px;">Biscuit</div>
           <div style="font-size:10px;color:#aaa;">Golden puppy</div>
         </div>
         <div style="text-align:center;cursor:pointer;" onclick="selectCharacter('cat')" id="charPick-cat">
-          <div id="charPreview-cat" style="border:3px solid transparent;border-radius:16px;padding:6px;background:#f8fdfd;min-height:110px;display:flex;align-items:center;justify-content:center;overflow:hidden;"></div>
+          <div id="charPreview-cat" style="border:3px solid transparent;border-radius:16px;padding:8px;background:#f8fdfd;display:inline-block;"></div>
           <div style="font-size:12px;font-weight:700;color:#888;margin-top:4px;">Mia</div>
           <div style="font-size:10px;color:#aaa;">Mischievous cat</div>
         </div>
@@ -1669,11 +1669,14 @@ function selectCharacter(type) {
 function initCharPreviews() {
   ['puppy','cat'].forEach(t => {
     const el = document.getElementById('charPreview-' + t);
-    if (el) {
-      const svg = drawCharacter(null, t, 'idle');
-      // Scale down for preview
-      el.innerHTML = `<div style="transform:scale(0.6);transform-origin:center center;">${svg}</div>`;
-    }
+    if (!el) return;
+    // Draw at small size directly
+    const type = t;
+    const expression = 'idle';
+    let svg = (type === 'cat') ? drawCat(expression) : drawPuppy(expression);
+    // Replace width/height in SVG to fit preview
+    svg = svg.replace('width="160" height="160"', 'width="96" height="96"');
+    el.innerHTML = svg;
   });
 }
 function getSaved() { try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch(e) { return []; } }
