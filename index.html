@@ -1670,12 +1670,8 @@ function initCharPreviews() {
   ['puppy','cat'].forEach(t => {
     const el = document.getElementById('charPreview-' + t);
     if (!el) return;
-    // Draw at small size directly
-    const type = t;
-    const expression = 'idle';
-    let svg = (type === 'cat') ? drawCat(expression) : drawPuppy(expression);
-    // Replace width/height in SVG to fit preview
-    svg = svg.replace('width="160" height="160"', 'width="96" height="96"');
+    let svg = (t === 'cat') ? drawCat('idle') : drawPuppy('idle');
+    svg = svg.replace('width="160" height="160"', 'width="110" height="110"');
     el.innerHTML = svg;
   });
 }
