@@ -906,7 +906,7 @@ function drawPuppy(expression) {
     : `<path d="M 102 108 Q 118 98 120 82 Q 122 68 114 62" fill="none" stroke="${body}" stroke-width="9" stroke-linecap="round"/>
        <path d="M 102 108 Q 118 98 120 82 Q 122 68 114 62" fill="none" stroke="${light}" stroke-width="5" stroke-linecap="round"/>`;
 
-  return `<svg viewBox="0 0 160 140" xmlns="http://www.w3.org/2000/svg" width="160" height="160">
+  return `<svg viewBox="0 0 160 140" xmlns="http://www.w3.org/2000/svg" width="160" height="140">
 
     <!-- Shadow -->
     <ellipse cx="75" cy="136" rx="42" ry="7" fill="rgba(0,0,0,0.08)"/>
@@ -1027,7 +1027,7 @@ function drawCat(expression) {
   const eyeH = expression === 'celebrate' ? 5.5 : expression === 'idle' ? 4 : 5;
   const pupilH = expression === 'idle' ? 3 : 5; // cat pupils narrow in light
 
-  return `<svg viewBox="0 0 160 145" xmlns="http://www.w3.org/2000/svg" width="160" height="160">
+  return `<svg viewBox="0 0 160 145" xmlns="http://www.w3.org/2000/svg" width="160" height="145">
 
     <!-- Shadow -->
     <ellipse cx="74" cy="138" rx="40" ry="6" fill="rgba(0,0,0,0.08)"/>
@@ -1671,7 +1671,9 @@ function initCharPreviews() {
     const el = document.getElementById('charPreview-' + t);
     if (!el) return;
     let svg = (t === 'cat') ? drawCat('idle') : drawPuppy('idle');
-    svg = svg.replace('width="160" height="160"', 'width="110" height="110"');
+    const origW = t === 'cat' ? 160 : 160;
+    const origH = t === 'cat' ? 145 : 140;
+    svg = svg.replace(`width="${origW}" height="${origH}"`, 'width="110" height="110"');
     el.innerHTML = svg;
   });
 }
