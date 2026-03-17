@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InsertStory</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f9f9;
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 680px;
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(13,115,119,0.12);
+  }
+
+  /* NAV TABS */
+  .tab-bar {
+    display: flex;
+    background: #0D7377;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 12px 6px;
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn.active {
+    color: white;
+    border-bottom-color: #7ECECA;
+    background: rgba(255,255,255,0.1);
+  }
+  .tab-panel { display: none; padding: 20px; }
+  .tab-panel.active { display: block; }
+
+  /* CARDS */
+  .hdr {
+    background: linear-gradient(135deg, #0D7377, #14A085);
+    border-radius: 12px;
+    padding: 16px 18px;
+    color: white;
+    margin-bottom: 16px;
+  }
+  .hdr h2 { font-size: 18px; font-weight: 700; }
+  .hdr p { font-size: 12px; opacity: 0.85; margin-top: 3px; }
+
+  .scard {
+    background: #f8fdfd;
+    border-radius: 12px;
+    border: 1.5px solid #b2dfdb;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+  }
+  .scard h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0D7377;
+    margin-bottom: 10px;
+  }
+
+  /* FORM ELEMENTS */
+  .frow {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .frow label { font-size: 12px; color: #666; min-width: 90px; }
+  .frow input, .frow select, input[type=text], input[type=password], select {
+    flex: 1;
+    border: 1.5px solid #b2dfdb;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    background: white;
+    color: #333;
+    min-width: 100px;
+  }
+  .frow input:focus, input:focus, select:focus {
+    outline: none;
+    border-color: #0D7377;
+  }
+
+  /* BUTTONS */
+  .btn-primary {
+    width: 100%;
+    background: #0D7377;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: #0a5c60; }
+  .btn-primary:disabled { background: #80cbc4; cursor: not-allowed; }
+
+  .btn-secondary {
+    background: white;
+    color: #0D7377;
+    border: 1.5px solid #0D7377;
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { background: #E8F7F7; }
+
+  .btn-add {
+    background: #14A085;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .btn-remove {
+    background: none;
+    border: none;
+    color: #80cbc4;
+    cursor: pointer;
+    font-size: 14px;
+    float: right;
+  }
+
+  /* VOICE SETTINGS */
+  .voice-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .voice-bar label { font-size: 12px; color: #666; min-width: 80px; }
+  .voice-bar input[type=range] { flex: 1; accent-color: #0D7377; }
+  .voice-bar span { font-size: 12px; color: #0D7377; min-width: 36px; text-align: right; font-weight: 700; }
+
+  .preset-row { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .preset-btn {
+    background: #E8F7F7;
+    border: 1.5px solid #b2dfdb;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-family: inherit;
+    color: #0D7377;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .preset-btn:hover { background: #b2dfdb; }
+
+  /* STATUS */
+  .status-box {
+    margin-top: 10px;
+    font-size: 13px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    display: none;
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  .status-box.ok { display: block; background: #e8f5e9; color: #2e7d32; border: 1.5px solid #a5d6a7; }
+  .status-box.err { display: block; background: #fff3e0; color: #e65100; border: 1.5px solid #ffcc80; }
+  .status-box.wait { display: block; background: #e8f0ff; color: #1a237e; border: 1.5px solid #9fa8da; }
+
+  /* PROMPT BLOCKS */
+  .prompt-block {
+    background: #E8F7F7;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    border: 1px solid #b2dfdb;
+  }
+  .prompt-block input, .prompt-block select {
+    width: 100%;
+    margin-top: 4px;
+    border: 1.5px solid #b2dfdb;
+    border-radius: 7px;
+    padding: 6px 9px;
+    font-size: 12px;
+    font-family: inherit;
+    background: white;
+    color: #333;
+  }
+  .prompt-label { font-size: 11px; font-weight: 700; color: #0D7377; }
+
+  /* SAVE/LOAD */
+  .save-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
+  .save-row input { flex: 1; }
+  .save-row button {
+    background: #0D7377;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .session-item {
+    background: white;
+    border-radius: 10px;
+    border: 1.5px solid #b2dfdb;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .session-item .smeta { flex: 1; min-width: 0; }
+  .session-item .sname { font-size: 13px; font-weight: 700; color: #333; }
+  .session-item .sdetail { font-size: 11px; color: #aaa; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .session-item .sbtns { display: flex; gap: 5px; flex-shrink: 0; }
+  .load-btn { background: #0D7377; color: white; border: none; border-radius: 7px; padding: 5px 10px; font-size: 12px; font-family: inherit; font-weight: 700; cursor: pointer; }
+  .del-btn { background: #fff0f0; color: #c62828; border: 1.5px solid #ffcdd2; border-radius: 7px; padding: 5px 8px; font-size: 12px; cursor: pointer; }
+
+  .flash-msg {
+    background: #e8f5e9;
+    border: 1.5px solid #a5d6a7;
+    border-radius: 9px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #2e7d32;
+    margin-bottom: 10px;
+    display: none;
+    font-weight: 700;
+  }
+
+  /* COSTAR BADGE */
+  .costar-badge {
+    display: inline-block;
+    background: #E8F7F7;
+    color: #0D7377;
+    border: 1.5px solid #b2dfdb;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    margin-left: 6px;
+  }
+
+  /* SESSION SCREEN */
+  #session-screen {
+    display: none;
+    background: #f0f9f9;
+    min-height: 100vh;
+    padding: 16px;
+  }
+
+  .sess-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .sess-nav button {
+    background: white;
+    border: 1.5px solid #b2dfdb;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-family: inherit;
+    font-size: 12px;
+    color: #555;
+    cursor: pointer;
+  }
+  .mute-btn { background: #E8F7F7; border-color: #b2dfdb; color: #0D7377; }
+  .mute-btn.muted { background: #fff3e0; border-color: #ffcc80; color: #e65100; }
+
+  .progress-bar { background: #b2dfdb; border-radius: 20px; height: 8px; margin-bottom: 14px; }
+  .progress-fill { height: 8px; border-radius: 20px; background: #0D7377; transition: width 0.5s; }
+
+  .char-stage { text-align: center; margin-bottom: 10px; }
+
+  .char-display {
+    width: 140px;
+    height: 140px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .char-display.talking { animation: talk 0.35s ease-in-out infinite; }
+  .char-display.bobbing { animation: bob 2s ease-in-out infinite; }
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes talk { 0%,100%{transform:scale(1)} 50%{transform:scale(1.07)} }
+
+  .speech-bubble {
+    background: white;
+    border: 3px solid #14A085;
+    border-radius: 18px;
+    padding: 14px 18px;
+    max-width: 340px;
+    margin: 0 auto 14px;
+    text-align: center;
+    position: relative;
+    min-height: 62px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 9px solid transparent;
+    border-bottom-color: #14A085;
+  }
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 7px solid transparent;
+    border-bottom-color: white;
+  }
+  .bubble-text { font-size: 17px; color: #333; font-weight: 600; line-height: 1.4; }
+  .child-name { color: #0D7377; font-weight: 800; }
+
+  .resp-area { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .rbtn {
+    min-width: 100px;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 14px;
+    font-size: 20px;
+    font-weight: 800;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0,0,0,0.1);
+    transition: all 0.1s;
+  }
+  .rbtn:active { transform: translateY(3px); box-shadow: none; }
+  .rbtn.yes { background: #43a047; color: white; }
+  .rbtn.no { background: #e53935; color: white; }
+  .rbtn.word { background: #14A085; color: white; font-size: 16px; }
+  .rbtn.skip { background: #bdbdbd; color: white; font-size: 13px; padding: 8px 14px; }
+
+  .celebrate {
+    display: none;
+    background: rgba(255,255,255,0.97);
+    border-radius: 16px;
+    padding: 24px 18px;
+    text-align: center;
+    margin: 8px 0;
+    border: 2px solid #b2dfdb;
+  }
+  .celebrate.show { display: block; }
+  .celeb-text {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0D7377;
+    line-height: 1.3;
+    animation: popin 0.4s ease-out;
+  }
+  .celeb-stars { font-size: 28px; margin: 8px 0; }
+  .next-btn {
+    background: #0D7377;
+    color: white;
+    border: none;
+    border-radius: 11px;
+    padding: 11px 26px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  /* MOOD CHECK-IN */
+  .mood-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+  .mood-btn {
+    background: white;
+    border: 2px solid #b2dfdb;
+    border-radius: 10px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13px;
+    color: #555;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .mood-btn:hover { border-color: #0D7377; background: #E8F7F7; color: #0D7377; }
+  .mood-btn.selected { border-color: #0D7377; background: #0D7377; color: white; }
+  .mood-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+
+  @keyframes popin { 0%{transform:scale(0.5);opacity:0} 80%{transform:scale(1.1)} 100%{transform:scale(1);opacity:1} }
+
+  .community-note {
+    background: #E8F7F7;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #0D7377;
+    margin-top: 8px;
+    border: 1px solid #b2dfdb;
+  }
+
+  .engagement-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+  .eng-btn {
+    background: white;
+    border: 2px solid #b2dfdb;
+    border-radius: 10px;
+    padding: 10px 8px;
+    text-align: center;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 12px;
+    color: #555;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+  .eng-btn:hover { border-color: #0D7377; background: #E8F7F7; }
+  .eng-btn.selected { border-color: #0D7377; background: #0D7377; color: white; }
+
+  .logo {
+    text-align: center;
+    padding: 20px 20px 10px;
+    border-bottom: 1px solid #E8F7F7;
+  }
+  .logo h1 { font-size: 28px; font-weight: 800; color: #0D7377; letter-spacing: -1px; }
+  .logo p { font-size: 12px; color: #aaa; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- LOGO -->
+  <div class="logo">
+    <h1>InsertStory</h1>
+    <p>Personalised therapeutic journeys for every child</p>
+  </div>
+
+  <!-- TAB BAR -->
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('sessions')">Sessions</button>
+    <button class="tab-btn" onclick="switchTab('child')">Child</button>
+    <button class="tab-btn" onclick="switchTab('cast')">Cast</button>
+    <button class="tab-btn" onclick="switchTab('voice')">Voice</button>
+    <button class="tab-btn" onclick="switchTab('moments')">Moments</button>
+  </div>
+
+  <!-- SESSIONS TAB -->
+  <div id="tab-sessions" class="tab-panel active">
+    <div class="hdr">
+      <h2>Session Library</h2>
+      <p>Save your setup and reload it anytime</p>
+    </div>
+    <div class="flash-msg" id="flashMsg"></div>
+    <div class="scard">
+      <h3>Save current setup</h3>
+      <div class="save-row">
+        <input type="text" id="sessionSaveName" placeholder='Name this session, e.g. Morning with West'/>
+        <button onclick="saveSession()">Save</button>
+      </div>
+    </div>
+    <div class="scard">
+      <h3>Saved sessions</h3>
+      <div id="sessionList"></div>
+    </div>
+    <button class="btn-primary" onclick="startSessionFlow()">Start session now</button>
+  </div>
+
+  <!-- CHILD TAB -->
+  <div id="tab-child" class="tab-panel">
+    <div class="hdr">
+      <h2>About your child</h2>
+      <p>This personalises every story and every session</p>
+    </div>
+
+    <div class="scard">
+      <h3>Child profile</h3>
+      <div class="frow"><label>Child's name</label><input type="text" id="childName" value="Summer" placeholder="e.g. Summer"/></div>
+      <div class="frow"><label>Nickname</label><input type="text" id="childNickname" placeholder="e.g. Sunshine, Pumpkin (optional)"/></div>
+      <div class="frow"><label>Age</label><input type="text" id="childAge" placeholder="e.g. 2" style="max-width:80px;"/></div>
+      <div class="frow"><label>Diagnosis</label>
+        <select id="childDiagnosis">
+          <option value="cleft_palate">Cleft palate</option>
+          <option value="autism">Autism spectrum</option>
+          <option value="apraxia">Apraxia</option>
+          <option value="adhd">ADHD</option>
+          <option value="dyslexia">Dyslexia</option>
+          <option value="intellectual">Intellectual disability</option>
+          <option value="selective_mutism">Selective mutism</option>
+          <option value="auditory_processing">Auditory processing</option>
+          <option value="delay">General speech delay</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="scard">
+      <h3>Engagement style</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:8px;">Watch your child play and pick the closest match. The app learns and adjusts over time.</p>
+      <div class="engagement-grid">
+        <button class="eng-btn selected" id="eng-action" onclick="setEngagement('action')">
+          Action forward<br><span style="font-size:11px;font-weight:400;">Loves to run, explore, fix things, be the hero</span>
+        </button>
+        <button class="eng-btn" id="eng-relational" onclick="setEngagement('relational')">
+          Relational<br><span style="font-size:11px;font-weight:400;">Loves to chat, cuddle, help others, connect</span>
+        </button>
+        <button class="eng-btn" id="eng-balanced" onclick="setEngagement('balanced')">
+          Balanced<br><span style="font-size:11px;font-weight:400;">A bit of both, depends on the day</span>
+        </button>
+        <button class="eng-btn" id="eng-special" onclick="setEngagement('special_interest')">
+          Special interest<br><span style="font-size:11px;font-weight:400;">One specific obsession drives everything</span>
+        </button>
+      </div>
+      <div id="specialInterestField" style="display:none;margin-top:8px;">
+        <input type="text" id="specialInterest" placeholder="What is their special interest? e.g. Cars, dinosaurs, trains" style="width:100%;"/>
+      </div>
+    </div>
+
+    <div class="scard">
+      <h3>Meaningful places</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:8px;">These appear in the stories as real locations your child recognises.</p>
+      <div id="placesList"></div>
+      <button class="btn-add" onclick="addPlace()">+ Add a place</button>
+    </div>
+
+    <div class="scard">
+      <h3>Accessibility settings</h3>
+      <div class="frow" style="align-items:center;gap:10px;">
+        <label style="font-size:12px;color:#666;">Zero pressure mode</label>
+        <input type="checkbox" id="zeroPressure" style="width:18px;height:18px;cursor:pointer;flex:none;accent-color:#0D7377;"/>
+        <span style="font-size:11px;color:#aaa;">For selective mutism or high anxiety. No visible waiting. Celebrates any engagement.</span>
+      </div>
+      <div class="frow" style="align-items:center;gap:10px;margin-top:6px;">
+        <label style="font-size:12px;color:#666;">Sensory friendly</label>
+        <input type="checkbox" id="sensoryFriendly" style="width:18px;height:18px;cursor:pointer;flex:none;accent-color:#0D7377;"/>
+        <span style="font-size:11px;color:#aaa;">Softer celebrations, no sudden sounds, predictable transitions.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CAST TAB -->
+  <div id="tab-cast" class="tab-panel">
+    <div class="hdr">
+      <h2>The cast</h2>
+      <p>Build your child's world of characters and real people</p>
+    </div>
+
+    <div class="scard">
+      <h3>Main character</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:12px;">Who hosts every session? Pick one to start. More characters coming soon.</p>
+      <div style="display:flex;gap:16px;justify-content:center;margin-bottom:12px;">
+        <div style="text-align:center;cursor:pointer;" onclick="selectCharacter('puppy')" id="charPick-puppy">
+          <div id="charPreview-puppy" style="border:3px solid #0D7377;border-radius:16px;padding:6px;background:#E8F7F7;"></div>
+          <div style="font-size:12px;font-weight:700;color:#0D7377;margin-top:4px;">Biscuit</div>
+          <div style="font-size:10px;color:#aaa;">Golden puppy</div>
+        </div>
+        <div style="text-align:center;cursor:pointer;" onclick="selectCharacter('cat')" id="charPick-cat">
+          <div id="charPreview-cat" style="border:3px solid transparent;border-radius:16px;padding:6px;background:#f8fdfd;"></div>
+          <div style="font-size:12px;font-weight:700;color:#888;margin-top:4px;">Mia</div>
+          <div style="font-size:10px;color:#aaa;">Mischievous cat</div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:#aaa;text-align:center;">More characters coming in future updates</p>
+    </div>
+
+    <div class="scard">
+      <h3>Co-star</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:8px;">A sibling, playdate friend, or peer who participates in sessions alongside your child.</p>
+      <div class="frow"><label>Co-star name</label><input type="text" id="costarName" placeholder="e.g. West"/></div>
+      <div class="frow"><label>Age</label><input type="text" id="costarAge" placeholder="e.g. 3.5" style="max-width:80px;"/></div>
+      <div class="frow"><label>Relationship</label>
+        <select id="costarRelationship">
+          <option value="sibling">Sibling</option>
+          <option value="playdate_friend">Playdate friend</option>
+          <option value="cousin">Cousin</option>
+          <option value="classmate">Classmate</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="frow"><label>Favourite thing</label><input type="text" id="costarFave" placeholder="e.g. the treehouse, trains, dinosaurs"/></div>
+      <div class="frow" style="align-items:center;gap:10px;">
+        <label style="font-size:12px;color:#666;">In today's session</label>
+        <input type="checkbox" id="costarActive" style="width:18px;height:18px;cursor:pointer;flex:none;accent-color:#0D7377;"/>
+      </div>
+    </div>
+
+    <div class="scard">
+      <h3>Real people in the cast</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:8px;">Each person's voice is cloned from their onboarding recording. They can appear in any story.</p>
+      <div id="castPeopleList"></div>
+      <button class="btn-add" onclick="addCastPerson()">+ Add a person</button>
+    </div>
+
+    <div class="scard">
+      <h3>Community connections</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:8px;">Friends from your parent community whose voices appear in your child's stories with mutual consent.</p>
+      <div id="communityList"></div>
+      <button class="btn-add" onclick="addCommunityConnection()">+ Add a community friend</button>
+      <div class="community-note">Both families must agree before any child appears in another child's story. Either family can remove access at any time.</div>
+    </div>
+  </div>
+
+  <!-- VOICE TAB -->
+  <div id="tab-voice" class="tab-panel">
+    <div class="hdr">
+      <h2>Voice settings</h2>
+      <p>Eve on ElevenLabs v3</p>
+    </div>
+
+    <div class="scard">
+      <h3>ElevenLabs connection</h3>
+      <label style="font-size:12px;color:#666;display:block;margin-bottom:3px;">API Key</label>
+      <input type="password" id="elApiKey" placeholder="Paste your ElevenLabs API key" style="width:100%;margin-bottom:8px;"/>
+      <p style="font-size:10px;color:#aaa;margin-bottom:10px;">Stays on this device only. Never shared anywhere.</p>
+      <label style="font-size:12px;color:#666;display:block;margin-bottom:3px;">Voice ID (Eve)</label>
+      <input type="text" id="elVoiceId" placeholder="Paste Eve's Voice ID" style="width:100%;margin-bottom:8px;"/>
+      <button class="btn-primary" id="testVoiceBtn" onclick="testVoice()" style="margin-top:4px;">Test Eve now</button>
+      <div class="status-box" id="voiceStatus"></div>
+    </div>
+
+    <div class="scard">
+      <h3>Expression</h3>
+      <div class="preset-row">
+        <button class="preset-btn" onclick="applyPreset('cartoon')">Cartoon</button>
+        <button class="preset-btn" onclick="applyPreset('warm')">Warm</button>
+        <button class="preset-btn" onclick="applyPreset('energetic')">Energetic</button>
+        <button class="preset-btn" onclick="applyPreset('gentle')">Gentle</button>
+      </div>
+      <div class="voice-bar">
+        <label>Stability</label>
+        <input type="range" id="elStability" min="0" max="100" step="1" value="15" oninput="document.getElementById('stabV').textContent=this.value+'%'"/>
+        <span id="stabV">15%</span>
+      </div>
+      <div style="font-size:10px;color:#aaa;margin:-2px 0 8px 88px;">Low = expressive · High = monotone</div>
+      <div class="voice-bar">
+        <label>Style</label>
+        <input type="range" id="elStyle" min="0" max="100" step="1" value="90" oninput="document.getElementById('styleV').textContent=this.value+'%'"/>
+        <span id="styleV">90%</span>
+      </div>
+    </div>
+
+    <div class="scard">
+      <h3>Session timing</h3>
+      <div class="voice-bar">
+        <label>Pause</label>
+        <input type="range" id="pauseTime" min="0" max="8" step="1" value="3" oninput="document.getElementById('pauseV').textContent=this.value+'s'"/>
+        <span id="pauseV">3s</span>
+      </div>
+      <p style="font-size:10px;color:#aaa;margin-top:2px;">How long to wait after speaking before response buttons appear. Gives your child time to attempt the word first.</p>
+    </div>
+
+    <div class="scard">
+      <h3>Celebration style</h3>
+      <div class="frow"><label>Cheer</label>
+        <select id="cheerStyle" style="flex:1;">
+          <option>Hooray! Amazing!</option>
+          <option>Woohoo! You did it!</option>
+          <option>Yes! Brilliant!</option>
+          <option>Fantastic! I knew you could!</option>
+          <option>Super duper! Wow!</option>
+        </select>
+      </div>
+      <div class="frow" style="align-items:center;gap:10px;margin-top:4px;">
+        <label style="font-size:12px;color:#666;">Say name in cheer</label>
+        <input type="checkbox" id="speakName" checked style="width:18px;height:18px;cursor:pointer;flex:none;accent-color:#0D7377;"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOMENTS TAB -->
+  <div id="tab-moments" class="tab-panel">
+    <div class="hdr">
+      <h2>Practice moments</h2>
+      <p>The therapist enters target sounds and words here each week</p>
+    </div>
+
+    <div class="scard">
+      <h3>This week's targets</h3>
+      <div class="frow"><label>Target sounds</label><input type="text" id="targetSounds" placeholder="e.g. D, T, N"/></div>
+      <div class="frow"><label>Target words</label><input type="text" id="targetWords" placeholder="e.g. Daddy, Done, Try, Tree"/></div>
+    </div>
+
+    <div class="scard">
+      <h3>Session moments</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:10px;">Each moment is one interaction in the session: a question, a word to practise, or a choice point.</p>
+      <div id="promptList"></div>
+      <button class="btn-add" onclick="addPrompt()">+ Add a moment</button>
+    </div>
+
+    <button class="btn-primary" onclick="startSessionFlow()">Start session now</button>
+  </div>
+
+</div>
+
+<!-- MOOD CHECK-IN SCREEN -->
+<div id="mood-screen" style="display:none;background:#f0f9f9;min-height:100vh;padding:20px;max-width:680px;margin:0 auto;">
+  <div style="background:white;border-radius:20px;padding:24px;box-shadow:0 4px 24px rgba(13,115,119,0.12);">
+    <h2 style="color:#0D7377;font-size:20px;margin-bottom:6px;">Before we start...</h2>
+    <p style="color:#666;font-size:14px;margin-bottom:20px;" id="moodQuestion">How is <strong id="moodChildName">Summer</strong> feeling right now?</p>
+    <div class="mood-grid">
+      <button class="mood-btn" onclick="selectMood('ready')"><span class="mood-icon">😊</span>Happy and ready</button>
+      <button class="mood-btn" onclick="selectMood('unsettled')"><span class="mood-icon">😟</span>A little unsettled</button>
+      <button class="mood-btn" onclick="selectMood('missing')"><span class="mood-icon">💭</span>Missing someone</button>
+      <button class="mood-btn" onclick="selectMood('tired')"><span class="mood-icon">😴</span>Tired</button>
+      <button class="mood-btn" onclick="selectMood('excited')"><span class="mood-icon">🌟</span>Excited about something</button>
+      <button class="mood-btn" onclick="selectMood('ready')"><span class="mood-icon">▶</span>Just start!</button>
+    </div>
+    <div id="missingPersonPanel" style="display:none;margin-top:16px;">
+      <p style="font-size:13px;color:#666;margin-bottom:8px;">Who is she missing today?</p>
+      <div id="missingPersonOptions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SESSION SCREEN -->
+<div id="session-screen">
+  <div style="max-width:680px;margin:0 auto;">
+    <div class="sess-nav">
+      <button onclick="endSession()">Back to setup</button>
+      <span id="stepLabel" style="font-size:12px;color:#888;"></span>
+      <button class="mute-btn" id="muteBtn" onclick="toggleMute()">Sound on</button>
+    </div>
+
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+
+    <div class="char-stage">
+      <div class="char-display bobbing" id="charDisplay"></div>
+    </div>
+
+    <div class="speech-bubble">
+      <div class="bubble-text" id="bubbleText">Hello!</div>
+    </div>
+
+    <div class="resp-area" id="respArea"></div>
+
+    <div class="celebrate" id="celebrate">
+      <div class="celeb-stars">⭐ 🎉 ⭐ 🎉 ⭐</div>
+      <div class="celeb-text" id="celebText"></div>
+      <div class="celeb-stars">🌟 🎊 🌟 🎊 🌟</div>
+      <button class="next-btn" onclick="nextStep()">Keep going!</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// INSERTSTORY V1.0 — DATA MODEL & APPLICATION
+// ============================================================
+
+const STORE_KEY = 'insertstory_sessions_v1';
+const CREDS_KEY = 'insertstory_creds_v1';
+
+// ---- DATA MODEL ----
+// Child profile
+let childProfile = {
+  name: 'Summer',
+  nickname: '',
+  age: '2',
+  diagnosis: 'cleft_palate',
+  engagementStyle: 'action',
+  specialInterest: '',
+  meaningfulPlaces: [],
+  zeroPressureMode: false,
+  sensoryFriendly: false,
+};
+
+// Co-star profile
+let costarProfile = {
+  name: '',
+  age: '',
+  relationship: 'sibling',
+  favouriteThing: '',
+  active: false,
+};
+
+// Cast
+let castPeople = [];
+
+// Community connections
+let communityConnections = [];
+
+// Voice settings
+let voiceSettings = {
+  apiKey: '',
+  voiceId: '',
+  stability: 15,
+  style: 90,
+  pauseTime: 3,
+  cheerStyle: 'Hooray! Amazing!',
+  speakName: true,
+};
+
+// Session moments
+let moments = [
+  { type: 'yn', question: 'Do you like apple juice?', celebratePhrase: 'said YES' },
+  { type: 'word', question: 'Who gives the BEST hugs?', targetWord: 'DADDY' },
+  { type: 'choice', question: 'The phone is ringing! Who do you think is calling?', optionA: 'Daddy', optionB: 'Sunny the bunny' },
+  { type: 'yn', question: 'Do you like going to the park?', celebratePhrase: 'said YES' },
+];
+
+// Therapeutic targets
+let therapeuticTargets = { sounds: '', words: '' };
+
+// Session state
+let sessionSteps = [];
+let currentStep = 0;
+let muted = false;
+let currentMood = 'ready';
+let missingPerson = null;
+let currentAudio = null;
+
+// Engagement style
+let selectedEngagement = 'action';
+
+// ---- CHARACTER DRAWING ----
+// ---- CHARACTER ENGINE ----
+// Each character has: idle, talking, celebrate expressions
+// currentCharType: 'puppy' (Biscuit default) or 'cat' (Mia)
+let currentCharType = 'puppy';
+let currentCharExpression = 'idle';
+let charAnimFrame = null;
+
+function drawCharacter(color, type, expression) {
+  type = type || currentCharType || 'puppy';
+  expression = expression || 'idle';
+  if (type === 'cat') return drawCat(expression);
+  return drawPuppy(expression);
+}
+
+function drawPuppy(expression) {
+  // Biscuit - golden retriever puppy, warm golden tones
+  const body = '#E8A838';
+  const light = '#F5C96A';
+  const dark = '#C47E1A';
+  const cream = '#FFF3D6';
+  const nose = '#3D1A00';
+  const eyeC = '#4A2800';
+
+  // Mouth varies by expression
+  const mouthPath = expression === 'celebrate'
+    ? 'M 56 82 Q 70 95 84 82'   // big open happy
+    : expression === 'talking'
+    ? 'M 60 81 Q 70 88 80 81'   // open mid
+    : 'M 60 80 Q 70 86 80 80';  // soft smile idle
+
+  // Eye shape varies
+  const eyeOpen = expression === 'celebrate' ? 5.5 : 5;
+  const eyeBrow = expression === 'celebrate' ? 'M 57 58 Q 63 54 69 57 M 71 57 Q 77 54 83 58'
+    : expression === 'talking' ? 'M 57 59 Q 63 56 69 58 M 71 58 Q 77 56 83 59'
+    : 'M 58 60 Q 63 57 68 59 M 72 59 Q 77 57 82 60';
+
+  // Ear droop varies
+  const earL = expression === 'celebrate'
+    ? 'M 40 52 Q 28 35 35 18 Q 42 8 52 20 Q 56 30 50 52'
+    : 'M 42 54 Q 30 40 36 22 Q 42 10 52 22 Q 56 34 50 54';
+  const earR = expression === 'celebrate'
+    ? 'M 100 52 Q 112 35 105 18 Q 98 8 88 20 Q 84 30 90 52'
+    : 'M 98 54 Q 110 40 104 22 Q 98 10 88 22 Q 84 34 90 54';
+
+  // Tongue shows when talking or celebrating
+  const tongue = (expression === 'talking' || expression === 'celebrate')
+    ? `<ellipse cx="70" cy="88" rx="8" ry="6" fill="#E05060"/>
+       <ellipse cx="70" cy="85" rx="8" ry="4" fill="#F07080"/>`
+    : '';
+
+  // Tail wag
+  const tail = expression === 'celebrate'
+    ? `<path d="M 100 105 Q 120 90 125 70 Q 128 55 118 50" fill="none" stroke="${body}" stroke-width="9" stroke-linecap="round"/>
+       <path d="M 100 105 Q 120 90 125 70 Q 128 55 118 50" fill="none" stroke="${light}" stroke-width="5" stroke-linecap="round"/>`
+    : `<path d="M 102 108 Q 118 98 120 82 Q 122 68 114 62" fill="none" stroke="${body}" stroke-width="9" stroke-linecap="round"/>
+       <path d="M 102 108 Q 118 98 120 82 Q 122 68 114 62" fill="none" stroke="${light}" stroke-width="5" stroke-linecap="round"/>`;
+
+  return `<svg viewBox="0 0 160 140" xmlns="http://www.w3.org/2000/svg" width="160" height="160">
+
+    <!-- Shadow -->
+    <ellipse cx="75" cy="136" rx="42" ry="7" fill="rgba(0,0,0,0.08)"/>
+
+    <!-- Tail -->
+    ${tail}
+
+    <!-- Body -->
+    <ellipse cx="72" cy="110" rx="42" ry="30" fill="${body}"/>
+    <ellipse cx="72" cy="108" rx="38" ry="26" fill="${light}"/>
+
+    <!-- Belly patch -->
+    <ellipse cx="72" cy="112" rx="22" ry="18" fill="${cream}"/>
+
+    <!-- Front paws -->
+    <ellipse cx="50" cy="132" rx="14" ry="10" fill="${body}"/>
+    <ellipse cx="94" cy="132" rx="14" ry="10" fill="${body}"/>
+    <ellipse cx="50" cy="130" rx="10" ry="7" fill="${light}"/>
+    <ellipse cx="94" cy="130" rx="10" ry="7" fill="${light}"/>
+
+    <!-- Ears (behind head) -->
+    <path d="${earL}" fill="${dark}" opacity="0.9"/>
+    <path d="${earR}" fill="${dark}" opacity="0.9"/>
+    <path d="${earL.replace('Q 30','Q 33').replace('Q 36','Q 39')}" fill="${body}" opacity="0.7" transform="scale(0.85) translate(10,8)"/>
+
+    <!-- Head -->
+    <circle cx="72" cy="70" r="34" fill="${body}"/>
+    <circle cx="72" cy="70" r="30" fill="${light}"/>
+
+    <!-- Snout -->
+    <ellipse cx="72" cy="80" rx="18" ry="14" fill="${cream}"/>
+    <ellipse cx="72" cy="75" rx="10" ry="7" fill="${body}" opacity="0.3"/>
+
+    <!-- Nose -->
+    <ellipse cx="72" cy="73" rx="8" ry="6" fill="${nose}"/>
+    <ellipse cx="69" cy="71" rx="3" ry="2" fill="rgba(255,255,255,0.4)"/>
+    <line x1="72" y1="79" x2="72" y2="83" stroke="${dark}" stroke-width="1.5"/>
+
+    <!-- Mouth -->
+    <path d="${mouthPath}" fill="${expression==='idle'?'none':'rgba(60,10,0,0.7)'}" stroke="${dark}" stroke-width="2" stroke-linecap="round"/>
+    ${tongue}
+
+    <!-- Eyebrows -->
+    <path d="${eyeBrow}" fill="none" stroke="${dark}" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Eyes -->
+    <circle cx="63" cy="64" r="${eyeOpen+2}" fill="${eyeC}"/>
+    <circle cx="81" cy="64" r="${eyeOpen+2}" fill="${eyeC}"/>
+    <circle cx="63" cy="64" r="${eyeOpen}" fill="#7A4A10"/>
+    <circle cx="81" cy="64" r="${eyeOpen}" fill="#7A4A10"/>
+    <circle cx="61" cy="62" r="2" fill="white"/>
+    <circle cx="79" cy="62" r="2" fill="white"/>
+    <circle cx="64" cy="65" r="1" fill="white" opacity="0.5"/>
+    <circle cx="82" cy="65" r="1" fill="white" opacity="0.5"/>
+
+    <!-- Ear inner -->
+    <path d="${earL}" fill="none" stroke="${cream}" stroke-width="3" opacity="0.5"/>
+
+    ${expression === 'celebrate' ? `
+    <!-- Sparkles -->
+    <text x="18" y="30" font-size="14" opacity="0.9">✨</text>
+    <text x="118" y="25" font-size="12" opacity="0.9">⭐</text>
+    <text x="10" y="70" font-size="10" opacity="0.7">🌟</text>
+    ` : ''}
+
+  </svg>`;
+}
+
+function drawCat(expression) {
+  // Mia - mischievous tortoiseshell cat, green eyes, slightly smug
+  const body = '#C4622A';
+  const light = '#E8874A';
+  const dark = '#8B3A12';
+  const cream = '#FFF0E0';
+  const stripe = '#8B3A12';
+  const eyeGreen = '#2D8B4E';
+  const nose = '#E8607A';
+
+  // Mia always looks slightly smug - one ear slightly askew
+  const mouthPath = expression === 'celebrate'
+    ? 'M 58 80 Q 70 90 82 80'
+    : expression === 'talking'
+    ? 'M 61 79 Q 70 86 79 79'
+    : 'M 62 78 Q 68 82 74 78 Q 78 76 80 78'; // slightly smug asymmetric
+
+  // Cat ears - pointed, one slightly tilted (Mia being mischievous)
+  const earL = `M 42 52 L 34 22 L 56 36 Z`;
+  const earR = expression === 'idle' || expression === 'talking'
+    ? `M 102 48 L 108 18 L 88 34 Z`   // right ear slightly forward (mischievous tilt)
+    : `M 98 50 L 106 20 L 86 36 Z`;
+
+  // Whiskers
+  const whiskers = `
+    <line x1="50" y1="74" x2="22" y2="70" stroke="${stripe}" stroke-width="1.2" opacity="0.7"/>
+    <line x1="50" y1="78" x2="20" y2="78" stroke="${stripe}" stroke-width="1.2" opacity="0.7"/>
+    <line x1="50" y1="82" x2="22" y2="86" stroke="${stripe}" stroke-width="1.2" opacity="0.7"/>
+    <line x1="90" y1="74" x2="118" y2="70" stroke="${stripe}" stroke-width="1.2" opacity="0.7"/>
+    <line x1="90" y1="78" x2="120" y2="78" stroke="${stripe}" stroke-width="1.2" opacity="0.7"/>
+    <line x1="90" y1="82" x2="118" y2="86" stroke="${stripe}" stroke-width="1.2" opacity="0.7"/>`;
+
+  // Tail - curled and proud
+  const tail = expression === 'celebrate'
+    ? `<path d="M 108 115 Q 132 95 128 72 Q 124 52 108 58 Q 96 62 104 72" fill="none" stroke="${body}" stroke-width="10" stroke-linecap="round"/>
+       <path d="M 108 115 Q 132 95 128 72 Q 124 52 108 58 Q 96 62 104 72" fill="none" stroke="${light}" stroke-width="6" stroke-linecap="round"/>`
+    : `<path d="M 106 118 Q 128 102 126 78 Q 124 60 110 64 Q 100 68 106 76" fill="none" stroke="${body}" stroke-width="10" stroke-linecap="round"/>
+       <path d="M 106 118 Q 128 102 126 78 Q 124 60 110 64 Q 100 68 106 76" fill="none" stroke="${light}" stroke-width="6" stroke-linecap="round"/>`;
+
+  // Stripe markings on forehead
+  const stripes = `
+    <path d="M 66 46 Q 68 40 70 46" fill="none" stroke="${stripe}" stroke-width="2" opacity="0.5"/>
+    <path d="M 71 44 Q 72 38 73 44" fill="none" stroke="${stripe}" stroke-width="1.5" opacity="0.4"/>
+    <path d="M 76 46 Q 78 40 80 46" fill="none" stroke="${stripe}" stroke-width="2" opacity="0.5"/>`;
+
+  const tongue = expression === 'celebrate'
+    ? `<ellipse cx="70" cy="86" rx="7" ry="5" fill="#E05060"/>` : '';
+
+  // Slightly narrow eye for smug look
+  const eyeH = expression === 'celebrate' ? 5.5 : expression === 'idle' ? 4 : 5;
+  const pupilH = expression === 'idle' ? 3 : 5; // cat pupils narrow in light
+
+  return `<svg viewBox="0 0 160 145" xmlns="http://www.w3.org/2000/svg" width="160" height="160">
+
+    <!-- Shadow -->
+    <ellipse cx="74" cy="138" rx="40" ry="6" fill="rgba(0,0,0,0.08)"/>
+
+    <!-- Tail -->
+    ${tail}
+
+    <!-- Body -->
+    <ellipse cx="72" cy="112" rx="40" ry="28" fill="${body}"/>
+    <ellipse cx="72" cy="110" rx="36" ry="24" fill="${light}"/>
+
+    <!-- Belly -->
+    <ellipse cx="72" cy="114" rx="20" ry="16" fill="${cream}"/>
+
+    <!-- Tabby body stripes -->
+    <path d="M 38 100 Q 45 95 52 100" fill="none" stroke="${stripe}" stroke-width="3" opacity="0.35"/>
+    <path d="M 36 110 Q 44 105 50 110" fill="none" stroke="${stripe}" stroke-width="3" opacity="0.35"/>
+    <path d="M 94 100 Q 100 95 108 100" fill="none" stroke="${stripe}" stroke-width="3" opacity="0.35"/>
+
+    <!-- Front paws -->
+    <ellipse cx="52" cy="132" rx="13" ry="9" fill="${body}"/>
+    <ellipse cx="92" cy="132" rx="13" ry="9" fill="${body}"/>
+    <ellipse cx="52" cy="130" rx="9" ry="6" fill="${light}"/>
+    <ellipse cx="92" cy="130" rx="9" ry="6" fill="${light}"/>
+    <!-- Paw toe lines -->
+    <line x1="48" y1="134" x2="48" y2="137" stroke="${dark}" stroke-width="1" opacity="0.5"/>
+    <line x1="52" y1="135" x2="52" y2="138" stroke="${dark}" stroke-width="1" opacity="0.5"/>
+    <line x1="56" y1="134" x2="56" y2="137" stroke="${dark}" stroke-width="1" opacity="0.5"/>
+    <line x1="88" y1="134" x2="88" y2="137" stroke="${dark}" stroke-width="1" opacity="0.5"/>
+    <line x1="92" y1="135" x2="92" y2="138" stroke="${dark}" stroke-width="1" opacity="0.5"/>
+    <line x1="96" y1="134" x2="96" y2="137" stroke="${dark}" stroke-width="1" opacity="0.5"/>
+
+    <!-- Ears (behind head) -->
+    <path d="${earL}" fill="${dark}"/>
+    <path d="${earR}" fill="${dark}"/>
+    <!-- Ear inner -->
+    <path d="M 45 50 L 38 26 L 54 38 Z" fill="${nose}" opacity="0.6"/>
+    <path d="M 99 46 L 105 22 L 86 36 Z" fill="${nose}" opacity="0.6"/>
+
+    <!-- Head -->
+    <circle cx="72" cy="70" r="32" fill="${body}"/>
+    <circle cx="72" cy="70" r="28" fill="${light}"/>
+
+    <!-- Forehead stripes -->
+    ${stripes}
+
+    <!-- Snout / muzzle -->
+    <ellipse cx="72" cy="79" rx="16" ry="12" fill="${cream}"/>
+
+    <!-- Nose -->
+    <path d="M 66 73 Q 72 70 78 73 L 75 77 Q 72 79 69 77 Z" fill="${nose}"/>
+    <ellipse cx="70" cy="72" rx="2" ry="1.5" fill="rgba(255,255,255,0.5)"/>
+
+    <!-- Mouth - asymmetric smug for Mia -->
+    <path d="${mouthPath}" fill="${expression==='idle'?'none':'rgba(60,10,0,0.6)'}" stroke="${dark}" stroke-width="2" stroke-linecap="round"/>
+    ${tongue}
+
+    <!-- Whiskers -->
+    ${whiskers}
+
+    <!-- Eyes - green, slightly narrowed (smug) -->
+    <ellipse cx="62" cy="64" rx="9" ry="${eyeH+2}" fill="#1A5C30"/>
+    <ellipse cx="82" cy="64" rx="9" ry="${eyeH+2}" fill="#1A5C30"/>
+    <ellipse cx="62" cy="64" rx="7.5" ry="${eyeH}" fill="${eyeGreen}"/>
+    <ellipse cx="82" cy="64" rx="7.5" ry="${eyeH}" fill="${eyeGreen}"/>
+    <!-- Slit pupils -->
+    <ellipse cx="62" cy="64" rx="2.5" ry="${pupilH}" fill="#0A2010"/>
+    <ellipse cx="82" cy="64" rx="2.5" ry="${pupilH}" fill="#0A2010"/>
+    <!-- Eye shine -->
+    <ellipse cx="59" cy="61" rx="2" ry="1.5" fill="rgba(255,255,255,0.7)"/>
+    <ellipse cx="79" cy="61" rx="2" ry="1.5" fill="rgba(255,255,255,0.7)"/>
+    <!-- Lower shine dot -->
+    <circle cx="64" cy="67" r="1" fill="rgba(255,255,255,0.3)"/>
+    <circle cx="84" cy="67" r="1" fill="rgba(255,255,255,0.3)"/>
+
+    ${expression === 'celebrate' ? `
+    <text x="14" y="28" font-size="14">✨</text>
+    <text x="120" y="24" font-size="12">⭐</text>
+    <text x="8" y="65" font-size="11">🌟</text>
+    ` : ''}
+
+    ${expression === 'idle' ? `
+    <!-- Mia's signature mischievous eyebrow raise on right -->
+    <path d="M 76 55 Q 82 51 88 54" fill="none" stroke="${dark}" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M 56 56 Q 62 53 68 55" fill="none" stroke="${dark}" stroke-width="2" stroke-linecap="round"/>
+    ` : `
+    <path d="M 56 55 Q 62 51 68 54 M 76 54 Q 82 51 88 54" fill="none" stroke="${dark}" stroke-width="2.2" stroke-linecap="round"/>
+    `}
+
+  </svg>`;
+}
+
+// Update character expression smoothly
+function setCharExpression(expr) {
+  currentCharExpression = expr;
+  const el = document.getElementById('charDisplay');
+  if (!el) return;
+  el.innerHTML = drawCharacter(null, currentCharType, expr);
+}
+
+// Talking animation: alternate between talking and idle
+let talkInterval = null;
+function startTalkingAnimation() {
+  stopTalkingAnimation();
+  let toggle = true;
+  setCharExpression('talking');
+  talkInterval = setInterval(() => {
+    toggle = !toggle;
+    setCharExpression(toggle ? 'talking' : 'idle');
+  }, 380);
+}
+
+function stopTalkingAnimation() {
+  if (talkInterval) { clearInterval(talkInterval); talkInterval = null; }
+  setCharExpression('idle');
+}
+
+// ---- VOICE ENGINE ----
+function getKey() { return document.getElementById('elApiKey').value.trim(); }
+function getVid() { return document.getElementById('elVoiceId').value.trim(); }
+
+const PRESETS = {
+  cartoon: { stability: 15, style: 90 },
+  warm: { stability: 35, style: 65 },
+  energetic: { stability: 10, style: 95 },
+  gentle: { stability: 45, style: 55 },
+};
+
+function applyPreset(name) {
+  const p = PRESETS[name]; if (!p) return;
+  document.getElementById('elStability').value = p.stability;
+  document.getElementById('stabV').textContent = p.stability + '%';
+  document.getElementById('elStyle').value = p.style;
+  document.getElementById('styleV').textContent = p.style + '%';
+}
+
+async function speakEL(text, onEnd) {
+  const key = getKey(), vid = getVid();
+  if (!key || !vid) { speakDevice(text, onEnd); return; }
+  if (muted) { if (onEnd) onEnd(); return; }
+
+  const stab = parseInt(document.getElementById('elStability').value) / 100;
+  const style = parseInt(document.getElementById('elStyle').value) / 100;
+
+  startTalkingAnimation();
+
+  try {
+    const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${vid}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'xi-api-key': key },
+      body: JSON.stringify({
+        text,
+        model_id: 'eleven_v3',
+        voice_settings: { stability: stab, similarity_boost: 0.80, style, use_speaker_boost: true }
+      })
+    });
+    if (!res.ok) throw new Error('EL error ' + res.status);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    currentAudio = new Audio(url);
+    currentAudio.onended = () => { URL.revokeObjectURL(url); stopTalkingAnimation(); if (onEnd) onEnd(); };
+    currentAudio.onerror = () => { URL.revokeObjectURL(url); stopTalkingAnimation(); speakDevice(text, onEnd); };
+    await currentAudio.play();
+  } catch (e) {
+    console.warn('EL error:', e.message);
+    stopTalkingAnimation();
+    speakDevice(text, onEnd);
+  }
+}
+
+function speakDevice(text, onEnd) {
+  if (muted) { if (onEnd) onEnd(); return; }
+  const synth = window.speechSynthesis;
+  synth.cancel();
+  const clean = text.replace(/\[.*?\]/g, '');
+  const u = new SpeechSynthesisUtterance(clean);
+  u.rate = 0.88; u.pitch = 1.2; u.volume = 1;
+  startTalkingAnimation();
+  u.onend = () => { stopTalkingAnimation(); if (onEnd) onEnd(); };
+  synth.speak(u);
+}
+
+function speak(text, onEnd) {
+  if (muted) { if (onEnd) onEnd(); return; }
+  const key = getKey(), vid = getVid();
+  if (key && vid) { speakEL(text, onEnd); } else { speakDevice(text, onEnd); }
+}
+
+function stopSpeech() {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  window.speechSynthesis.cancel();
+}
+
+function toggleMute() {
+  muted = !muted;
+  const b = document.getElementById('muteBtn');
+  b.textContent = muted ? 'Sound off' : 'Sound on';
+  b.classList.toggle('muted', muted);
+  if (muted) stopSpeech();
+}
+
+async function testVoice() {
+  const key = getKey(), vid = getVid();
+  const btn = document.getElementById('testVoiceBtn');
+  const st = document.getElementById('voiceStatus');
+  if (!key) { setVoiceStatus('err', 'Please paste your API key first'); return; }
+  if (!vid) { setVoiceStatus('err', "Please paste Eve's Voice ID first"); return; }
+
+  btn.disabled = true; btn.textContent = 'Speaking...';
+  setVoiceStatus('wait', 'Connecting to ElevenLabs v3...');
+
+  const cn = document.getElementById('childName').value || 'Summer';
+  const lines = [
+    `Oh my goodness! ${cn}! It's you! I have been waiting ALL day to see you! Are you ready to play with me?`,
+    `${cn}! I have a very important question for you! Do you like apple juice? Can you say YES?`,
+    `HOORAY! ${cn} said YES! That is the most amazing thing I have ever heard! I am SO proud of you!`,
+  ];
+
+  let i = 0;
+  function next() {
+    if (i >= lines.length) {
+      btn.disabled = false; btn.textContent = 'Test Eve now';
+      setVoiceStatus('ok', 'Eve is working! InsertStory has a voice. Ready to build!');
+      return;
+    }
+    speakEL(lines[i++], next);
+  }
+
+  speakEL(lines[0], () => { i = 1; next(); });
+}
+
+function setVoiceStatus(type, msg) {
+  const b = document.getElementById('voiceStatus');
+  b.className = 'status-box' + (type ? ' ' + type : '');
+  b.textContent = msg;
+  b.style.display = type ? 'block' : 'none';
+}
+
+// ---- ENGAGEMENT STYLE ----
+function setEngagement(style) {
+  selectedEngagement = style;
+  ['action','relational','balanced','special_interest'].forEach(s => {
+    document.getElementById('eng-' + s).classList.toggle('selected', s === style);
+  });
+  document.getElementById('specialInterestField').style.display = style === 'special_interest' ? 'block' : 'none';
+}
+
+// ---- PLACES ----
+function addPlace() {
+  childProfile.meaningfulPlaces.push({ name: '', label: '' });
+  renderPlaces();
+}
+
+function renderPlaces() {
+  const list = document.getElementById('placesList');
+  list.innerHTML = '';
+  childProfile.meaningfulPlaces.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'prompt-block';
+    d.innerHTML = `<span class="prompt-label">Place ${i+1}</span><button class="btn-remove" onclick="childProfile.meaningfulPlaces.splice(${i},1);renderPlaces()">✕</button>
+      <input placeholder="Place name (e.g. Pop's treehouse, Grandma's kitchen)" value="${p.name||''}" oninput="childProfile.meaningfulPlaces[${i}].name=this.value"/>`;
+    list.appendChild(d);
+  });
+}
+
+// ---- CAST PEOPLE ----
+function addCastPerson() {
+  castPeople.push({ name: '', role: '', voiceCloned: false });
+  renderCastPeople();
+}
+
+function renderCastPeople() {
+  const list = document.getElementById('castPeopleList');
+  list.innerHTML = '';
+  if (!castPeople.length) {
+    list.innerHTML = '<p style="font-size:12px;color:#aaa;text-align:center;padding:10px;">No cast members yet. Add Mummy, Daddy, Grandpa, or anyone your child loves.</p>';
+    return;
+  }
+  castPeople.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'prompt-block';
+    d.innerHTML = `<span class="prompt-label">Cast member ${i+1}</span><button class="btn-remove" onclick="castPeople.splice(${i},1);renderCastPeople()">✕</button>
+      <input placeholder="Name (e.g. Daddy, Grandpa, Auntie Sue)" value="${p.name||''}" oninput="castPeople[${i}].name=this.value"/>
+      <input placeholder="Nickname they use for your child (e.g. Pumpkin, Buddy)" value="${p.nickname||''}" oninput="castPeople[${i}].nickname=this.value" style="margin-top:4px;"/>
+      <select onchange="castPeople[${i}].role=this.value" style="margin-top:4px;">
+        <option value="parent" ${p.role==='parent'?'selected':''}>Parent</option>
+        <option value="grandparent" ${p.role==='grandparent'?'selected':''}>Grandparent</option>
+        <option value="sibling" ${p.role==='sibling'?'selected':''}>Sibling</option>
+        <option value="relative" ${p.role==='relative'?'selected':''}>Relative</option>
+        <option value="teacher" ${p.role==='teacher'?'selected':''}>Teacher / therapist</option>
+        <option value="family_friend" ${p.role==='family_friend'?'selected':''}>Family friend</option>
+        <option value="pop" ${p.role==='pop'?'selected':''}>Pop (special character)</option>
+      </select>`;
+    list.appendChild(d);
+  });
+}
+
+// ---- COMMUNITY CONNECTIONS ----
+function addCommunityConnection() {
+  communityConnections.push({ childName: '', parentName: '', consentGranted: false });
+  renderCommunityConnections();
+}
+
+function renderCommunityConnections() {
+  const list = document.getElementById('communityList');
+  list.innerHTML = '';
+  if (!communityConnections.length) {
+    list.innerHTML = '<p style="font-size:12px;color:#aaa;text-align:center;padding:10px;">No community friends yet. Add a child from your parent group.</p>';
+    return;
+  }
+  communityConnections.forEach((c, i) => {
+    const d = document.createElement('div');
+    d.className = 'prompt-block';
+    d.innerHTML = `<span class="prompt-label">Community friend ${i+1}</span><button class="btn-remove" onclick="communityConnections.splice(${i},1);renderCommunityConnections()">✕</button>
+      <input placeholder="Child's name (e.g. Lily)" value="${c.childName||''}" oninput="communityConnections[${i}].childName=this.value"/>
+      <input placeholder="Parent's name and contact" value="${c.parentName||''}" oninput="communityConnections[${i}].parentName=this.value" style="margin-top:4px;"/>
+      <div style="margin-top:6px;display:flex;align-items:center;gap:8px;">
+        <input type="checkbox" ${c.consentGranted?'checked':''} onchange="communityConnections[${i}].consentGranted=this.checked" style="width:16px;height:16px;accent-color:#0D7377;"/>
+        <span style="font-size:11px;color:#666;">Both families have agreed to this connection</span>
+      </div>`;
+    list.appendChild(d);
+  });
+}
+
+// ---- MOMENTS ----
+function addPrompt() {
+  moments.push({ type: 'yn', question: '', celebratePhrase: 'said YES' });
+  renderPrompts();
+}
+
+function renderPrompts() {
+  const list = document.getElementById('promptList');
+  list.innerHTML = '';
+  moments.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'prompt-block';
+    d.innerHTML = `<span class="prompt-label">Moment ${i+1}</span><button class="btn-remove" onclick="moments.splice(${i},1);renderPrompts()">✕</button>
+      <select onchange="moments[${i}].type=this.value;renderPrompts()" style="margin-top:3px;">
+        <option value="yn" ${p.type==='yn'?'selected':''}>Yes / No question</option>
+        <option value="word" ${p.type==='word'?'selected':''}>Practice a word</option>
+        <option value="choice" ${p.type==='choice'?'selected':''}>Choice point (child picks who calls)</option>
+      </select>
+      <input placeholder="Question or prompt" value="${p.question||''}" oninput="moments[${i}].question=this.value"/>
+      ${p.type==='word' ? `<input placeholder="Word to practise (e.g. DADDY)" value="${p.targetWord||''}" oninput="moments[${i}].targetWord=this.value" style="margin-top:4px;"/>` : ''}
+      ${p.type==='choice' ? `
+        <input placeholder="Option A (e.g. Daddy)" value="${p.optionA||''}" oninput="moments[${i}].optionA=this.value" style="margin-top:4px;"/>
+        <input placeholder="Option B (e.g. Sunny the bunny)" value="${p.optionB||''}" oninput="moments[${i}].optionB=this.value" style="margin-top:4px;"/>
+      ` : ''}
+      ${p.type==='yn' ? `<input placeholder="Celebrate phrase (e.g. said YES)" value="${p.celebratePhrase||''}" oninput="moments[${i}].celebratePhrase=this.value" style="margin-top:4px;"/>` : ''}`;
+    list.appendChild(d);
+  });
+}
+
+// ---- MOOD CHECK-IN ----
+function startSessionFlow() {
+  const cn = document.getElementById('childName').value || 'Summer';
+  document.getElementById('moodChildName').textContent = cn;
+  document.getElementById('moodQuestion').innerHTML = `How is <strong>${cn}</strong> feeling right now?`;
+
+  // Build missing person options from cast
+  const panel = document.getElementById('missingPersonOptions');
+  panel.innerHTML = '';
+  const people = castPeople.filter(p => p.name);
+  people.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'mood-btn';
+    btn.style.marginBottom = '6px';
+    btn.style.width = '100%';
+    btn.textContent = p.name;
+    btn.onclick = () => {
+      missingPerson = p;
+      document.querySelectorAll('#missingPersonOptions .mood-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    };
+    panel.appendChild(btn);
+  });
+
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('mood-screen').style.display = 'block';
+  document.getElementById('session-screen').style.display = 'none';
+}
+
+function selectMood(mood) {
+  currentMood = mood;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  event.target.closest('.mood-btn').classList.add('selected');
+
+  if (mood === 'missing') {
+    document.getElementById('missingPersonPanel').style.display = 'block';
+    setTimeout(() => {}, 500);
+  } else {
+    missingPerson = null;
+    document.getElementById('missingPersonPanel').style.display = 'none';
+    setTimeout(() => launchSession(), 600);
+  }
+}
+
+function launchSession() {
+  const cn = document.getElementById('childName').value || 'Summer';
+  const costarActive = document.getElementById('costarActive').checked;
+  const costarName = document.getElementById('costarName').value;
+
+  // Build session steps
+  sessionSteps = [];
+
+  // Intro
+  if (currentMood === 'missing' && missingPerson) {
+    sessionSteps.push({
+      type: 'absent_costar_intro',
+      childName: cn,
+      absentPerson: missingPerson.name,
+      nickname: missingPerson.nickname || cn,
+    });
+  } else {
+    sessionSteps.push({
+      type: 'intro',
+      childName: cn,
+      costarName: costarActive ? costarName : null,
+    });
+  }
+
+  // Add moments
+  moments.forEach(m => {
+    sessionSteps.push({ ...m, childName: cn, costarName: costarActive ? costarName : null });
+  });
+
+  currentStep = 0;
+
+  document.getElementById('mood-screen').style.display = 'none';
+  document.getElementById('session-screen').style.display = 'block';
+  document.getElementById('charDisplay').innerHTML = drawCharacter('#14A085');
+
+  renderStep();
+}
+
+// ---- SESSION PLAYER ----
+function renderStep() {
+  document.getElementById('celebrate').classList.remove('show');
+  document.getElementById('respArea').innerHTML = '';
+
+  const p = sessionSteps[currentStep];
+  const total = sessionSteps.length;
+
+  document.getElementById('progressFill').style.width = Math.round((currentStep / Math.max(total-1,1)) * 100) + '%';
+  document.getElementById('stepLabel').textContent = currentStep === 0 ? '' : `${currentStep} of ${total-1}`;
+
+  if (!p) { showEnd(); return; }
+
+  setCharTalking(true);
+
+  const pause = parseInt(document.getElementById('pauseTime').value || 3) * 1000;
+  const zeroPressure = document.getElementById('zeroPressure').checked;
+
+  if (p.type === 'intro') {
+    const coMsg = p.costarName ? ` And I see ${p.costarName} is here too! Hi ${p.costarName}!` : '';
+    const txt = `Oh my goodness! ${p.childName}! It's you!${coMsg} I have been waiting ALL day to see you! Are you ready to play with me?`;
+    setBubble(`Hi <span class="child-name">${p.childName}</span>! Ready to play? 🎉`);
+    speak(txt, () => showButtons([{ label: "YES! Let's go!", cls: 'yes', fn: () => nextStep() }]));
+
+  } else if (p.type === 'absent_costar_intro') {
+    const txt = `Oh my goodness! ${p.childName}! I just heard from ${p.absentPerson}! They are not here right now, but they sent a very important message. They said: ${p.childName} is the only one who can help today! Are you ready to help ${p.absentPerson}?`;
+    setBubble(`<span class="child-name">${p.childName}</span>... ${p.absentPerson} needs your help today! 💭`);
+    speak(txt, () => showButtons([{ label: `Help ${p.absentPerson}!`, cls: 'yes', fn: () => nextStep() }]));
+
+  } else if (p.type === 'yn') {
+    setBubble(`<span class="child-name">${p.childName}</span>, ${p.question || 'do you like this?'}`);
+    const spokenQ = `${p.childName}! I have a question for you! ${p.question || 'Do you like this?'}`;
+    speak(spokenQ, () => {
+      if (zeroPressure) {
+        showButtons([
+          { label: 'YES', cls: 'yes', fn: () => celebrate(p.childName, p.celebratePhrase || 'said YES') },
+          { label: 'NO', cls: 'no', fn: () => celebrate(p.childName, 'said NO') },
+          { label: 'Skip', cls: 'skip', fn: () => nextStep() },
+        ]);
+      } else {
+        setTimeout(() => showButtons([
+          { label: 'YES', cls: 'yes', fn: () => celebrate(p.childName, p.celebratePhrase || 'said YES') },
+          { label: 'NO', cls: 'no', fn: () => celebrate(p.childName, 'said NO') },
+          { label: 'Skip', cls: 'skip', fn: () => nextStep() },
+        ]), pause);
+      }
+    });
+
+  } else if (p.type === 'word') {
+    const tw = p.targetWord || 'YES';
+    setBubble(`${p.question || 'Can you say...'}<br><span style="font-size:24px;color:#0D7377;font-weight:800;">${tw}</span>?`);
+    const spokenQ = `${p.childName}! ${p.question || 'Can you say this word?'} ${tw}! Can you say ${tw}?`;
+    speak(spokenQ, () => {
+      if (zeroPressure) {
+        showButtons([
+          { label: tw, cls: 'word', fn: () => celebrate(p.childName, `said ${tw}!`) },
+          { label: 'Skip', cls: 'skip', fn: () => nextStep() },
+        ]);
+      } else {
+        setTimeout(() => showButtons([
+          { label: tw, cls: 'word', fn: () => celebrate(p.childName, `said ${tw}!`) },
+          { label: 'Skip', cls: 'skip', fn: () => nextStep() },
+        ]), pause);
+      }
+    });
+
+  } else if (p.type === 'choice') {
+    const optA = p.optionA || 'Daddy';
+    const optB = p.optionB || 'a friend';
+    setBubble(`The phone is ringing! Who do you think is calling? <strong>${optA}</strong> or <strong>${optB}</strong>?`);
+    const spokenQ = `Oh my goodness! ${p.childName}! The phone is ringing! Who do you think is calling? Do you think it's ${optA}? Or do you think it's ${optB}?`;
+    speak(spokenQ, () => setTimeout(() => showButtons([
+      { label: optA, cls: 'word', fn: () => handleChoice(p.childName, optA) },
+      { label: optB, cls: 'word', fn: () => handleChoice(p.childName, optB) },
+    ]), pause));
+
+  } else {
+    nextStep();
+  }
+}
+
+function handleChoice(childName, chosen) {
+  const spokenReaction = `${chosen}! Oh wow! ${childName} chose ${chosen}! Let's hear from ${chosen} right now!`;
+  setCharTalking(true);
+  speak(spokenReaction, () => {
+    celebrate(childName, `chose ${chosen}!`);
+  });
+}
+
+function setBubble(html) {
+  document.getElementById('bubbleText').innerHTML = html;
+}
+
+function setCharTalking(talking) {
+  if (talking) { startTalkingAnimation(); } else { stopTalkingAnimation(); }
+}
+
+function showButtons(btns) {
+  const ra = document.getElementById('respArea');
+  ra.innerHTML = '';
+  btns.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'rbtn ' + b.cls;
+    btn.textContent = b.label;
+    btn.onclick = b.fn;
+    ra.appendChild(btn);
+  });
+  setCharTalking(false);
+}
+
+function celebrate(name, phrase) {
+  stopSpeech();
+  stopTalkingAnimation();
+  setCharExpression('celebrate');
+  const cheer = document.getElementById('cheerStyle').value || 'Hooray! Amazing!';
+  const sn = document.getElementById('speakName').checked;
+  const sensory = document.getElementById('sensoryFriendly').checked;
+
+  document.getElementById('celebText').textContent = `${cheer} ${name} ${phrase}`;
+  document.getElementById('celebrate').classList.add('show');
+
+  const celebStars = document.querySelector('.celeb-stars');
+  if (sensory && celebStars) celebStars.style.display = 'none';
+
+  const txt = sn
+    ? `${cheer} ${name} ${phrase} I knew you could do it! That made me SO happy!`
+    : `${cheer} That was absolutely wonderful!`;
+  speak(txt);
+}
+
+function nextStep() {
+  stopSpeech();
+  document.getElementById('celebrate').classList.remove('show');
+  currentStep++;
+  if (currentStep >= sessionSteps.length) { showEnd(); return; }
+  renderStep();
+}
+
+function showEnd() {
+  stopSpeech();
+  stopTalkingAnimation();
+  const cn = sessionSteps[0]?.childName || 'Summer';
+  const charSvg = drawCharacter(null, currentCharType, 'celebrate');
+  document.getElementById('session-screen').innerHTML = `
+    <div style="max-width:680px;margin:0 auto;text-align:center;padding:40px 20px;">
+      <div style="margin-bottom:16px;">${charSvg}</div>
+      <h2 style="font-size:26px;color:#0D7377;margin-bottom:8px;">Amazing work, ${cn}!</h2>
+      <p style="color:#888;font-size:14px;margin-bottom:20px;">Your friend is SO proud of you today!</p>
+      <div style="font-size:32px;margin-bottom:24px;">🌟 🎊 🌟 🎊 🌟</div>
+      <button onclick="endSession()" style="background:#0D7377;color:white;border:none;border-radius:12px;padding:13px 28px;font-size:15px;font-family:inherit;font-weight:700;cursor:pointer;">Back to setup</button>
+    </div>`;
+  speak(`Oh ${cn}! That was the BEST session ever! I am SO proud of you today! See you next time!`);
+}
+
+function endSession() {
+  stopSpeech();
+  document.getElementById('session-screen').style.display = 'none';
+  document.getElementById('mood-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  // Restore session screen for next time
+  setTimeout(() => {
+    document.getElementById('session-screen').innerHTML = buildSessionScreenHTML();
+  }, 100);
+}
+
+function buildSessionScreenHTML() {
+  return `<div style="max-width:680px;margin:0 auto;">
+    <div class="sess-nav">
+      <button onclick="endSession()">Back to setup</button>
+      <span id="stepLabel" style="font-size:12px;color:#888;"></span>
+      <button class="mute-btn" id="muteBtn" onclick="toggleMute()">Sound on</button>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="char-stage"><div class="char-display bobbing" id="charDisplay"></div></div>
+    <div class="speech-bubble"><div class="bubble-text" id="bubbleText">Hello!</div></div>
+    <div class="resp-area" id="respArea"></div>
+    <div class="celebrate" id="celebrate">
+      <div class="celeb-stars">⭐ 🎉 ⭐ 🎉 ⭐</div>
+      <div class="celeb-text" id="celebText"></div>
+      <div class="celeb-stars">🌟 🎊 🌟 🎊 🌟</div>
+      <button class="next-btn" onclick="nextStep()">Keep going!</button>
+    </div>
+  </div>`;
+}
+
+// ---- CHARACTER SELECTION ----
+function selectCharacter(type) {
+  currentCharType = type;
+  ['puppy','cat'].forEach(t => {
+    const wrap = document.getElementById('charPick-' + t);
+    const inner = document.getElementById('charPreview-' + t);
+    if (!wrap || !inner) return;
+    const selected = t === type;
+    inner.style.border = selected ? '3px solid #0D7377' : '3px solid transparent';
+    inner.style.background = selected ? '#E8F7F7' : '#f8fdfd';
+    wrap.querySelector('div + div').style.color = selected ? '#0D7377' : '#888';
+  });
+  // Update live session character if running
+  const cd = document.getElementById('charDisplay');
+  if (cd) cd.innerHTML = drawCharacter(null, type, currentCharExpression);
+}
+
+function initCharPreviews() {
+  ['puppy','cat'].forEach(t => {
+    const el = document.getElementById('charPreview-' + t);
+    if (el) {
+      const svg = drawCharacter(null, t, 'idle');
+      // Scale down for preview
+      el.innerHTML = `<div style="transform:scale(0.55);transform-origin:top center;height:88px;overflow:hidden;">${svg}</div>`;
+    }
+  });
+}
+function getSaved() { try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); } catch(e) { return []; } }
+
+function buildSnapshot() {
+  return {
+    savedAt: Date.now(),
+    label: '',
+    child: {
+      name: document.getElementById('childName').value || 'Summer',
+      nickname: document.getElementById('childNickname').value || '',
+      age: document.getElementById('childAge').value || '',
+      diagnosis: document.getElementById('childDiagnosis').value,
+      engagementStyle: selectedEngagement,
+      specialInterest: document.getElementById('specialInterest').value || '',
+      meaningfulPlaces: childProfile.meaningfulPlaces,
+      zeroPressureMode: document.getElementById('zeroPressure').checked,
+      sensoryFriendly: document.getElementById('sensoryFriendly').checked,
+    },
+    costar: {
+      name: document.getElementById('costarName').value || '',
+      age: document.getElementById('costarAge').value || '',
+      relationship: document.getElementById('costarRelationship').value,
+      favouriteThing: document.getElementById('costarFave').value || '',
+      active: document.getElementById('costarActive').checked,
+    },
+    castPeople: JSON.parse(JSON.stringify(castPeople)),
+    communityConnections: JSON.parse(JSON.stringify(communityConnections)),
+    voice: {
+      stability: document.getElementById('elStability').value,
+      style: document.getElementById('elStyle').value,
+      pauseTime: document.getElementById('pauseTime').value,
+      cheerStyle: document.getElementById('cheerStyle').value,
+      speakName: document.getElementById('speakName').checked,
+    },
+    therapeuticTargets: {
+      sounds: document.getElementById('targetSounds').value || '',
+      words: document.getElementById('targetWords').value || '',
+    },
+    moments: JSON.parse(JSON.stringify(moments)),
+  };
+}
+
+function applySnapshot(s) {
+  if (s.child) {
+    document.getElementById('childName').value = s.child.name || '';
+    document.getElementById('childNickname').value = s.child.nickname || '';
+    document.getElementById('childAge').value = s.child.age || '';
+    document.getElementById('childDiagnosis').value = s.child.diagnosis || 'cleft_palate';
+    if (s.child.engagementStyle) setEngagement(s.child.engagementStyle);
+    document.getElementById('specialInterest').value = s.child.specialInterest || '';
+    childProfile.meaningfulPlaces = s.child.meaningfulPlaces || [];
+    document.getElementById('zeroPressure').checked = s.child.zeroPressureMode || false;
+    document.getElementById('sensoryFriendly').checked = s.child.sensoryFriendly || false;
+    renderPlaces();
+  }
+  if (s.costar) {
+    document.getElementById('costarName').value = s.costar.name || '';
+    document.getElementById('costarAge').value = s.costar.age || '';
+    document.getElementById('costarRelationship').value = s.costar.relationship || 'sibling';
+    document.getElementById('costarFave').value = s.costar.favouriteThing || '';
+    document.getElementById('costarActive').checked = s.costar.active || false;
+  }
+  if (s.castPeople) { castPeople = s.castPeople; renderCastPeople(); }
+  if (s.communityConnections) { communityConnections = s.communityConnections; renderCommunityConnections(); }
+  if (s.voice) {
+    document.getElementById('elStability').value = s.voice.stability || 15;
+    document.getElementById('stabV').textContent = (s.voice.stability || 15) + '%';
+    document.getElementById('elStyle').value = s.voice.style || 90;
+    document.getElementById('styleV').textContent = (s.voice.style || 90) + '%';
+    document.getElementById('pauseTime').value = s.voice.pauseTime || 3;
+    document.getElementById('pauseV').textContent = (s.voice.pauseTime || 3) + 's';
+    document.getElementById('cheerStyle').value = s.voice.cheerStyle || 'Hooray! Amazing!';
+    document.getElementById('speakName').checked = s.voice.speakName !== false;
+  }
+  if (s.therapeuticTargets) {
+    document.getElementById('targetSounds').value = s.therapeuticTargets.sounds || '';
+    document.getElementById('targetWords').value = s.therapeuticTargets.words || '';
+  }
+  if (s.moments) { moments = s.moments; renderPrompts(); }
+}
+
+function saveSession() {
+  const ni = document.getElementById('sessionSaveName');
+  const label = ni.value.trim();
+  if (!label) { ni.focus(); return; }
+  const sessions = getSaved();
+  const snap = buildSnapshot(); snap.label = label;
+  const idx = sessions.findIndex(s => s.label === label);
+  if (idx >= 0) sessions[idx] = snap; else sessions.unshift(snap);
+  localStorage.setItem(STORE_KEY, JSON.stringify(sessions.slice(0, 20)));
+  ni.value = '';
+  flash('"' + label + '" saved!');
+  renderSessionList();
+}
+
+function deleteSession(label) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(getSaved().filter(s => s.label !== label)));
+  renderSessionList();
+}
+
+function loadSession(label) {
+  const s = getSaved().find(s => s.label === label);
+  if (s) { applySnapshot(s); flash('"' + label + '" loaded!'); }
+}
+
+function flash(msg) {
+  const f = document.getElementById('flashMsg');
+  f.textContent = msg; f.style.display = 'block';
+  setTimeout(() => f.style.display = 'none', 2500);
+}
+
+function renderSessionList() {
+  const list = document.getElementById('sessionList');
+  const sessions = getSaved();
+  if (!sessions.length) {
+    list.innerHTML = '<p style="font-size:12px;color:#aaa;text-align:center;padding:16px;">No saved sessions yet. Build your first session and save it above.</p>';
+    return;
+  }
+  list.innerHTML = '';
+  sessions.forEach(s => {
+    const d = document.createElement('div');
+    d.className = 'session-item';
+    const date = new Date(s.savedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const sl = s.label.replace(/'/g, "\\'");
+    d.innerHTML = `
+      <div class="smeta">
+        <div class="sname">${s.label}</div>
+        <div class="sdetail">${s.child?.name || 'Child'} · ${s.moments?.length || 0} moments · ${date}</div>
+      </div>
+      <div class="sbtns">
+        <button class="load-btn" onclick="loadSession('${sl}')">Load</button>
+        <button class="del-btn" onclick="if(confirm('Delete this session?'))deleteSession('${sl}')">Delete</button>
+      </div>`;
+    list.appendChild(d);
+  });
+}
+
+// ---- TAB NAVIGATION ----
+function switchTab(t) {
+  const tabs = ['sessions','child','cast','voice','moments'];
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', tabs[i] === t));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  const el = document.getElementById('tab-' + t);
+  if (el) el.classList.add('active');
+  if (t === 'sessions') renderSessionList();
+}
+
+// ---- CREDENTIALS PERSISTENCE ----
+function saveCredentials() {
+  try {
+    localStorage.setItem(CREDS_KEY, JSON.stringify({
+      key: document.getElementById('elApiKey').value,
+      vid: document.getElementById('elVoiceId').value,
+    }));
+  } catch(e) {}
+}
+
+function loadCredentials() {
+  try {
+    const d = JSON.parse(localStorage.getItem(CREDS_KEY) || '{}');
+    if (d.key) document.getElementById('elApiKey').value = d.key;
+    if (d.vid) document.getElementById('elVoiceId').value = d.vid;
+  } catch(e) {}
+}
+
+document.getElementById('elApiKey').addEventListener('input', saveCredentials);
+document.getElementById('elVoiceId').addEventListener('input', saveCredentials);
+
+// ---- INITIALISE ----
+renderPrompts();
+renderCastPeople();
+renderCommunityConnections();
+renderPlaces();
+renderSessionList();
+loadCredentials();
+initCharPreviews();
+selectCharacter('puppy');
+
+// Pre-load character in session screen
+document.getElementById('charDisplay').innerHTML = drawCharacter(null, 'puppy', 'idle');
+</script>
+
+</body>
+</html>
