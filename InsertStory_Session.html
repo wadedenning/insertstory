@@ -877,6 +877,13 @@ function startSession() {
 // ===== ELEVENLABS TTS =====
 async function speak(text, voiceKey, onDone) {
   const voiceId = CONFIG.VOICES[voiceKey] || CONFIG.VOICES.opie;
+  // Resume any suspended audio context
+  if (window.AudioContext || window.webkitAudioContext) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (ctx.state === 'suspended') await ctx.resume();
+    } catch(e) {}
+  }
   showAudioStatus('🔊 ' + (voiceKey === 'mia' ? 'Mia' : voiceKey === 'eve' ? 'Eve' : 'Opie') + ' is talking...');
 
   try {
@@ -903,8 +910,19 @@ async function speak(text, voiceKey, onDone) {
     const audioBlob = await response.blob();
     const audioUrl = URL.createObjectURL(audioBlob);
     const audio = new Audio(audioUrl);
+    audio.preload = 'auto';
     STATE.audioPlaying = true;
-    audio.play();
+    const playPromise = audio.play();
+    if (playPromise) {
+      playPromise.catch(err => {
+        console.log('Autoplay blocked, retrying on interaction:', err);
+        const retry = () => {
+          audio.play().catch(e => console.log('Retry failed:', e));
+          document.removeEventListener('click', retry);
+        };
+        document.addEventListener('click', retry, { once: true });
+      });
+    }
     audio.onended = () => {
       STATE.audioPlaying = false;
       URL.revokeObjectURL(audioUrl);
@@ -1469,6 +1487,22 @@ function restartSession() {
   document.getElementById('guestForm').classList.remove('visible');
   showScreen('screen-welcome');
 }
+
+// ===== AUDIO UNLOCK =====
+let audioUnlocked = false;
+
+function unlockAudio() {
+  if (audioUnlocked) return;
+  const silence = new Audio("data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//OEAAAAAAAAAAAAAAAAAAAAAAAASW5mbwAAAA8AAAABAAABIADAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMD/84QAAAAATAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=");
+  silence.play().then(() => {
+    audioUnlocked = true;
+    console.log("Audio unlocked");
+  }).catch(() => {});
+}
+
+// Add unlock listener to all interactive elements
+document.addEventListener('click', unlockAudio, { once: true });
+document.addEventListener('touchstart', unlockAudio, { once: true });
 
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
