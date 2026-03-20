@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>InsertStory</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sky: #87CEEB;
+    --sky-dark: #5BA3D9;
+    --sand: #F4D03F;
+    --sand-dark: #E8B84B;
+    --grass: #52C85A;
+    --warm: #FF8C42;
+    --warm-light: #FFB380;
+    --cream: #FFF8F0;
+    --deep: #2C1810;
+    --teal: #0D7377;
+    --teal-light: #14A085;
+    --white: #FFFFFF;
+    --shadow: rgba(0,0,0,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--sky);
+    min-height: 100vh;
+    overflow-x: hidden;
+    touch-action: manipulation;
+  }
+
+  /* ===== SCREENS ===== */
+  .screen {
+    display: none;
+    min-height: 100vh;
+    width: 100%;
+    position: relative;
+  }
+  .screen.active { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+  /* ===== WELCOME SCREEN ===== */
+  #screen-welcome {
+    background: linear-gradient(180deg, #87CEEB 0%, #B8E4F7 60%, #C8EDA0 100%);
+    padding: 40px 24px;
+  }
+
+  .logo-wrap {
+    text-align: center;
+    margin-bottom: 32px;
+    animation: floatIn 0.8s ease-out;
+  }
+
+  .logo-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(42px, 10vw, 72px);
+    color: var(--teal);
+    text-shadow: 3px 3px 0 rgba(13,115,119,0.2);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .logo-sub {
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(14px, 3vw, 18px);
+    color: var(--teal-light);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .opie-welcome-img {
+    width: clamp(180px, 45vw, 280px);
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.2));
+    animation: bounce 2s ease-in-out infinite;
+    margin-bottom: 32px;
+  }
+
+  .welcome-card {
+    background: var(--white);
+    border-radius: 28px;
+    padding: 32px 28px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 8px 32px var(--shadow);
+  }
+
+  .welcome-card h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(22px, 5vw, 28px);
+    color: var(--deep);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .welcome-card p {
+    font-size: 15px;
+    color: #666;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+
+  .pilot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .pilot-btn {
+    background: var(--cream);
+    border: 3px solid transparent;
+    border-radius: 18px;
+    padding: 18px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--deep);
+  }
+
+  .pilot-btn:hover, .pilot-btn.selected {
+    border-color: var(--teal-light);
+    background: #E8F7F7;
+    transform: scale(1.03);
+  }
+
+  .pilot-btn .pilot-emoji { font-size: 28px; display: block; margin-bottom: 6px; }
+
+  .pilot-guest {
+    grid-column: 1 / -1;
+  }
+
+  /* ===== MOOD SCREEN ===== */
+  #screen-mood {
+    background: linear-gradient(180deg, #FFE0B2 0%, #FFF3E0 100%);
+    padding: 40px 24px;
+  }
+
+  .mood-opie {
+    width: clamp(140px, 35vw, 200px);
+    filter: drop-shadow(0 6px 16px rgba(0,0,0,0.15));
+    margin-bottom: 24px;
+    animation: floatIn 0.6s ease-out;
+  }
+
+  .mood-card {
+    background: var(--white);
+    border-radius: 28px;
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 8px 32px var(--shadow);
+  }
+
+  .mood-card h2 {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(20px, 5vw, 26px);
+    color: var(--deep);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .mood-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  .mood-btn {
+    background: var(--cream);
+    border: 3px solid transparent;
+    border-radius: 16px;
+    padding: 12px 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--deep);
+    font-family: 'Nunito', sans-serif;
+  }
+
+  .mood-btn:hover, .mood-btn.selected {
+    border-color: var(--warm);
+    background: #FFF3E0;
+    transform: scale(1.05);
+  }
+
+  .mood-btn .mood-emoji { font-size: 28px; display: block; margin-bottom: 4px; }
+
+  .opie-message-wrap {
+    margin-top: 4px;
+  }
+
+  .opie-message-wrap label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--teal);
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  .opie-message-input {
+    width: 100%;
+    border: 2px solid #E0E0E0;
+    border-radius: 14px;
+    padding: 12px 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    color: var(--deep);
+    resize: none;
+    transition: border-color 0.2s;
+    min-height: 72px;
+  }
+
+  .opie-message-input:focus {
+    outline: none;
+    border-color: var(--teal-light);
+  }
+
+  .opie-message-input::placeholder { color: #BDBDBD; }
+
+  /* ===== BIG BUTTON ===== */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--teal) 0%, var(--teal-light) 100%);
+    color: var(--white);
+    border: none;
+    border-radius: 20px;
+    padding: 18px 36px;
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(18px, 4vw, 22px);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 6px 20px rgba(13,115,119,0.35);
+    width: 100%;
+    margin-top: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(13,115,119,0.45);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+
+  /* ===== SESSION SCREEN ===== */
+  #screen-session {
+    background: linear-gradient(180deg, #87CEEB 0%, #B8E4F7 55%, #8BC34A 55%, #6AAF35 100%);
+    padding: 0;
+    justify-content: flex-start;
+  }
+
+  .session-stage {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px 16px 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  /* Treehouse background element */
+  .treehouse-bg {
+    position: fixed;
+    bottom: 60px;
+    right: -20px;
+    width: clamp(120px, 30vw, 200px);
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Character display */
+  .character-wrap {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    min-height: clamp(220px, 45vw, 320px);
+    margin-bottom: 8px;
+    z-index: 1;
+  }
+
+  .character-img {
+    height: clamp(200px, 42vw, 300px);
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.25));
+    transition: all 0.4s ease;
+    position: absolute;
+  }
+
+  .char-opie { left: 50%; transform: translateX(-60%); }
+  .char-mia {
+    left: 50%;
+    transform: translateX(10%);
+    height: clamp(140px, 30vw, 210px);
+    transition: all 0.5s ease;
+  }
+
+  .char-mia.hidden { opacity: 0; transform: translateX(120%); }
+  .char-mia.entering { animation: miaEnter 0.6s ease-out forwards; }
+  .char-mia.exiting { animation: miaExit 0.8s ease-in forwards; }
+
+  /* Speech bubble */
+  .speech-bubble {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 20px 24px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 6px 24px var(--shadow);
+    position: relative;
+    margin-bottom: 16px;
+    z-index: 2;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+  }
+
+  .speech-bubble::before {
+    content: '';
+    position: absolute;
+    top: -14px;
+    left: clamp(60px, 15%, 100px);
+    border-left: 14px solid transparent;
+    border-right: 14px solid transparent;
+    border-bottom: 14px solid var(--white);
+  }
+
+  .speech-text {
+    font-size: clamp(15px, 3.5vw, 18px);
+    line-height: 1.5;
+    color: var(--deep);
+    font-weight: 600;
+    flex: 1;
+  }
+
+  .speaker-tag {
+    font-family: 'Fredoka One', cursive;
+    font-size: 12px;
+    color: var(--teal-light);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  /* Pilot prompt */
+  .pilot-prompt {
+    background: linear-gradient(135deg, #E8F7F7, #D0F0EC);
+    border: 2px solid var(--teal-light);
+    border-radius: 16px;
+    padding: 14px 18px;
+    width: 100%;
+    max-width: 520px;
+    font-size: clamp(13px, 3vw, 15px);
+    color: var(--teal);
+    font-weight: 700;
+    margin-bottom: 12px;
+    z-index: 2;
+    animation: promptFade 0.4s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .pilot-prompt .prompt-icon { font-size: 20px; flex-shrink: 0; }
+  .pilot-prompt.hidden { opacity: 0; pointer-events: none; }
+
+  /* Action buttons */
+  .action-area {
+    width: 100%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 2;
+    padding-bottom: 20px;
+  }
+
+  .btn-attempt {
+    background: linear-gradient(135deg, #FF8C42, #FFB380);
+    color: var(--white);
+    border: none;
+    border-radius: 20px;
+    padding: 18px 24px;
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(17px, 4vw, 21px);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 6px 20px rgba(255,140,66,0.4);
+    letter-spacing: 0.5px;
+  }
+
+  .btn-attempt:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,140,66,0.5); }
+
+  .btn-next {
+    background: linear-gradient(135deg, var(--teal), var(--teal-light));
+    color: var(--white);
+    border: none;
+    border-radius: 20px;
+    padding: 16px 24px;
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(16px, 3.5vw, 19px);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 6px 20px rgba(13,115,119,0.35);
+    letter-spacing: 0.5px;
+  }
+
+  .btn-next:hover { transform: translateY(-2px); }
+
+  .btn-encourage {
+    background: white;
+    color: var(--teal);
+    border: 2px solid var(--teal-light);
+    border-radius: 20px;
+    padding: 14px 24px;
+    font-family: 'Nunito', sans-serif;
+    font-size: clamp(14px, 3vw, 16px);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  /* ===== CELEBRATION SCREEN ===== */
+  #screen-celebration {
+    background: linear-gradient(135deg, #FF6B6B 0%, #FFE66D 50%, #4ECDC4 100%);
+    padding: 40px 24px;
+    overflow: hidden;
+  }
+
+  .celebration-opie {
+    width: clamp(200px, 50vw, 300px);
+    filter: drop-shadow(0 8px 24px rgba(0,0,0,0.2));
+    animation: celebDance 0.5s ease-in-out infinite alternate;
+    margin-bottom: 24px;
+  }
+
+  .celebration-text {
+    font-family: 'Fredoka One', cursive;
+    font-size: clamp(32px, 8vw, 56px);
+    color: var(--white);
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.15);
+    text-align: center;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    animation: textPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+
+  .confetti-wrap {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    animation: confettiFall linear infinite;
+  }
+
+  /* Audio status */
+  .audio-status {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 100;
+    display: none;
+  }
+
+  .audio-status.visible { display: block; }
+
+  /* Loading dots */
+  .loading-dots {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    margin-left: 8px;
+  }
+
+  .loading-dots span {
+    width: 6px; height: 6px;
+    background: var(--teal-light);
+    border-radius: 50%;
+    animation: dotPulse 1.2s ease-in-out infinite;
+  }
+
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    width: 100%;
+    max-width: 520px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 10px;
+    height: 8px;
+    margin-bottom: 16px;
+    z-index: 2;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal), var(--teal-light));
+    border-radius: 10px;
+    transition: width 0.8s ease;
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes floatIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  @keyframes miaEnter {
+    from { opacity: 0; transform: translateX(120%); }
+    to { opacity: 1; transform: translateX(10%); }
+  }
+
+  @keyframes miaExit {
+    from { opacity: 1; transform: translateX(10%); }
+    to { opacity: 0; transform: translateX(120%); }
+  }
+
+  @keyframes celebDance {
+    from { transform: rotate(-8deg) scale(1); }
+    to { transform: rotate(8deg) scale(1.05); }
+  }
+
+  @keyframes textPop {
+    from { opacity: 0; transform: scale(0.5); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  @keyframes confettiFall {
+    0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @keyframes promptFade {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes dotPulse {
+    0%, 100% { transform: scale(0.6); opacity: 0.4; }
+    50% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes charEntrance {
+    from { opacity: 0; transform: translateX(-60%) scale(0.8); }
+    to { opacity: 1; transform: translateX(-60%) scale(1); }
+  }
+
+  /* Opie entrance animation */
+  .char-opie.entering {
+    animation: charEntrance 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  /* Whisper mode - darken screen slightly */
+  .whisper-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.3);
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .whisper-overlay.active { opacity: 1; }
+
+  /* Guest form */
+  .guest-form {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px dashed #E0E0E0;
+  }
+
+  .guest-form.visible { display: flex; }
+
+  .form-input {
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    color: var(--deep);
+    transition: border-color 0.2s;
+  }
+
+  .form-input:focus { outline: none; border-color: var(--teal-light); }
+
+  .form-select {
+    border: 2px solid #E0E0E0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    color: var(--deep);
+    background: white;
+    cursor: pointer;
+  }
+
+  /* Stars for celebration */
+  .star {
+    position: absolute;
+    font-size: clamp(20px, 5vw, 36px);
+    animation: starFloat 1.5s ease-out forwards;
+    pointer-events: none;
+  }
+
+  @keyframes starFloat {
+    0% { transform: scale(0) rotate(0deg); opacity: 1; }
+    50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+    100% { transform: scale(0.5) rotate(360deg) translateY(-80px); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- AUDIO STATUS -->
+<div class="audio-status" id="audioStatus">🔊 Playing...</div>
+
+<!-- WHISPER OVERLAY -->
+<div class="whisper-overlay" id="whisperOverlay"></div>
+
+<!-- CONFETTI -->
+<div class="confetti-wrap" id="confettiWrap"></div>
+
+<!-- ===== SCREEN 1: WELCOME / PILOT SELECT ===== -->
+<div class="screen active" id="screen-welcome">
+  <div class="logo-wrap">
+    <div class="logo-title">InsertStory</div>
+    <div class="logo-sub">Personalised therapeutic journeys for every child</div>
+  </div>
+  <img src="" class="opie-welcome-img" id="opieWelcomeImg" alt="Opie">
+  <div class="welcome-card">
+    <h2>Who's with Summer today?</h2>
+    <p>Tell Opie who's in charge so he can say hi properly.</p>
+    <div class="pilot-grid">
+      <button class="pilot-btn" onclick="selectPilot('mommy', this)">
+        <span class="pilot-emoji">👩</span>Mommy
+      </button>
+      <button class="pilot-btn" onclick="selectPilot('daddy', this)">
+        <span class="pilot-emoji">👨</span>Daddy
+      </button>
+      <button class="pilot-btn" onclick="selectPilot('sissy', this)">
+        <span class="pilot-emoji">👧</span>Sissy
+      </button>
+      <button class="pilot-btn pilot-guest" onclick="selectPilot('guest', this)">
+        <span class="pilot-emoji">🌟</span>Someone Special
+      </button>
+    </div>
+    <div class="guest-form" id="guestForm">
+      <input type="text" class="form-input" id="guestName" placeholder="What does Summer call you?">
+      <input type="text" class="form-input" id="guestRelationship" placeholder="Relationship (e.g. Grandma, Babysitter)">
+      <select class="form-select" id="guestAge">
+        <option value="">Your age range...</option>
+        <option value="child">Child (under 12)</option>
+        <option value="teen">Teen (12-17)</option>
+        <option value="adult">Adult (18+)</option>
+        <option value="grandparent">Grandparent</option>
+      </select>
+    </div>
+    <button class="btn-primary" onclick="goToMood()">Let's Go! 🚀</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 2: MOOD + OPIE MESSAGE ===== -->
+<div class="screen" id="screen-mood">
+  <img src="" class="mood-opie" id="moodOpieImg" alt="Opie">
+  <div class="mood-card">
+    <h2 id="moodGreeting">Hey Mommy! How is Summer feeling today?</h2>
+    <div class="mood-grid">
+      <button class="mood-btn" onclick="selectMood('amazing', this)">
+        <span class="mood-emoji">🤩</span>Amazing
+      </button>
+      <button class="mood-btn" onclick="selectMood('happy', this)">
+        <span class="mood-emoji">😊</span>Happy
+      </button>
+      <button class="mood-btn" onclick="selectMood('okay', this)">
+        <span class="mood-emoji">😐</span>Okay
+      </button>
+      <button class="mood-btn" onclick="selectMood('tired', this)">
+        <span class="mood-emoji">😴</span>Tired
+      </button>
+      <button class="mood-btn" onclick="selectMood('grumpy', this)">
+        <span class="mood-emoji">😤</span>Grumpy
+      </button>
+    </div>
+    <div class="opie-message-wrap">
+      <label>🐾 Want Opie to deliver a message to Summer today?</label>
+      <textarea class="opie-message-input" id="opieMessageInput" placeholder="e.g. Tell Summer we're going to the park after this! (optional)"></textarea>
+    </div>
+    <button class="btn-primary" onclick="startSession()">Start the Adventure! 🏴‍☠️</button>
+  </div>
+</div>
+
+<!-- ===== SCREEN 3: SESSION ===== -->
+<div class="screen" id="screen-session">
+  <div class="session-stage">
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressBar" style="width: 0%"></div>
+    </div>
+
+    <div class="character-wrap" id="characterWrap">
+      <img src="" class="character-img char-opie" id="opieImg" alt="Opie">
+      <img src="" class="character-img char-mia hidden" id="miaImg" alt="Mia">
+    </div>
+
+    <div class="speech-bubble" id="speechBubble">
+      <div style="width:100%">
+        <div class="speaker-tag" id="speakerTag">OPIE</div>
+        <div class="speech-text" id="speechText">
+          Getting ready for the adventure
+          <span class="loading-dots"><span></span><span></span><span></span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pilot-prompt hidden" id="pilotPrompt">
+      <span class="prompt-icon">💬</span>
+      <span id="pilotPromptText"></span>
+    </div>
+
+    <div class="action-area" id="actionArea"></div>
+
+  </div>
+</div>
+
+<!-- ===== SCREEN 4: CELEBRATION ===== -->
+<div class="screen" id="screen-celebration">
+  <img src="" class="celebration-opie" id="celebOpieImg" alt="Opie dancing">
+  <div class="celebration-text" id="celebText">YOU DID IT!</div>
+  <div style="font-family:'Nunito',sans-serif; font-size:18px; color:white; font-weight:700; text-align:center; margin-bottom:24px; text-shadow: 1px 1px 0 rgba(0,0,0,0.2);" id="celebSubText">Summer found the treasure!</div>
+  <button class="btn-primary" style="max-width:320px;" onclick="showGoodbye()">Hear Opie's Goodbye 👋</button>
+</div>
+
+<!-- ===== SCREEN 5: GOODBYE ===== -->
+<div class="screen" id="screen-goodbye" style="background: linear-gradient(180deg, #87CEEB 0%, #B8E4F7 60%, #C8EDA0 100%); padding: 40px 24px;">
+  <img src="" style="width:clamp(160px,40vw,240px); filter:drop-shadow(0 8px 20px rgba(0,0,0,0.2)); margin-bottom:24px;" id="goodbyeOpieImg" alt="Opie">
+  <div style="background:white; border-radius:28px; padding:28px 24px; width:100%; max-width:480px; box-shadow:0 8px 32px rgba(0,0,0,0.15); text-align:center;">
+    <h2 style="font-family:'Fredoka One',cursive; font-size:clamp(22px,5vw,28px); color:#2C1810; margin-bottom:12px;">See you next time, Summer!</h2>
+    <p style="font-size:16px; color:#666; font-weight:600; line-height:1.6; margin-bottom:24px;" id="goodbyeText">What an adventure today. You were so brave!</p>
+    <button class="btn-primary" onclick="restartSession()">Play Again 🔄</button>
+  </div>
+</div>
+
+<script src="assets/images.js"></script>
+<script>
+
+// ===== CONFIGURATION =====
+const CONFIG = {
+  ELEVENLABS_API_KEY: 'de2fee4c26b6343e5b865dd7ab841cdb4255da5e895abad00a26286c5255920a',
+  VOICES: {
+    eve:  'BZgkqPqms7Kj9ulSkVzn',
+    opie: 'cFyNSyiOwHxKoooXUS5f',
+    mia:  'kqj8dloYl7066wY40b2n',
+  },
+  MODEL: 'eleven_v3',
+  CHILD_NAME: 'Summer',
+  SONGS: {
+    summer: 'Mystical Magical by Benson Boone',
+    west:   'Rock That Body by the Black Eyed Peas',
+    sissy:  'Misery Business by Paramore',
+    mommy:  "Mama's Song by Benson Boone",
+    daddy:  'your favorite song',
+    guest:  'a great song',
+  }
+};
+
+// ===== SESSION STATE =====
+let STATE = {
+  pilot: null,
+  guestName: null,
+  guestRelationship: null,
+  guestAge: null,
+  mood: null,
+  opieMessage: null,
+  currentBeat: 0,
+  wordAttempts: { dog: 0, dig: 0, done: 0 },
+  audioPlaying: false,
+  miaVisible: false,
+};
+
+// ===== IMAGE SETUP =====
+function setupImages() {
+  if (typeof IMAGES === 'undefined') return;
+  const setImg = (id, key) => {
+    const el = document.getElementById(id);
+    if (el && IMAGES[key]) el.src = IMAGES[key];
+  };
+  setImg('opieWelcomeImg', 'opie-2-welcome');
+  setImg('moodOpieImg', 'opie-1-neutral');
+  setImg('opieImg', 'opie-2-welcome');
+  setImg('miaImg', 'mia-1-neutral');
+  setImg('celebOpieImg', 'opie-7-dance');
+  setImg('goodbyeOpieImg', 'opie-2-welcome');
+}
+
+// ===== PILOT SELECTION =====
+function selectPilot(pilot, el) {
+  STATE.pilot = pilot;
+  document.querySelectorAll('.pilot-btn').forEach(b => b.classList.remove('selected'));
+  if(el) el.classList.add('selected');
+  const guestForm = document.getElementById('guestForm');
+  if (pilot === 'guest') {
+    guestForm.classList.add('visible');
+  } else {
+    guestForm.classList.remove('visible');
+  }
+}
+
+function getPilotName() {
+  if (STATE.pilot === 'guest' && STATE.guestName) return STATE.guestName;
+  const names = { mommy: 'Mommy', daddy: 'Daddy', sissy: 'Sissy' };
+  return names[STATE.pilot] || 'Friend';
+}
+
+function goToMood() {
+  if (!STATE.pilot) { alert('Please tell Opie who is here today!'); return; }
+  if (STATE.pilot === 'guest') {
+    STATE.guestName = document.getElementById('guestName').value || 'Friend';
+    STATE.guestRelationship = document.getElementById('guestRelationship').value || 'Special Guest';
+    STATE.guestAge = document.getElementById('guestAge').value || 'adult';
+  }
+  document.getElementById('moodGreeting').textContent =
+    `Hey ${getPilotName()}! How is Summer feeling today?`;
+  showScreen('screen-mood');
+}
+
+// ===== MOOD SELECTION =====
+function selectMood(mood, el) {
+  STATE.mood = mood;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  if(el) el.classList.add('selected');
+}
+
+function startSession() {
+  if (!STATE.mood) { alert('Tell Opie how Summer is feeling!'); return; }
+  STATE.opieMessage = document.getElementById('opieMessageInput').value.trim();
+  showScreen('screen-session');
+  setTimeout(() => runBeat(0), 600);
+}
+
+// ===== ELEVENLABS TTS =====
+async function speak(text, voiceKey, onDone) {
+  const voiceId = CONFIG.VOICES[voiceKey] || CONFIG.VOICES.opie;
+  showAudioStatus('🔊 ' + (voiceKey === 'mia' ? 'Mia' : voiceKey === 'eve' ? 'Eve' : 'Opie') + ' is talking...');
+
+  try {
+    const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+      method: 'POST',
+      headers: {
+        'xi-api-key': CONFIG.ELEVENLABS_API_KEY,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        text: text,
+        model_id: CONFIG.MODEL,
+        voice_settings: { stability: 0.5, similarity_boost: 0.75, style: 0.3, use_speaker_boost: true }
+      })
+    });
+
+    if (!response.ok) {
+      console.error('ElevenLabs error:', response.status);
+      hideAudioStatus();
+      if (onDone) onDone();
+      return;
+    }
+
+    const audioBlob = await response.blob();
+    const audioUrl = URL.createObjectURL(audioBlob);
+    const audio = new Audio(audioUrl);
+    STATE.audioPlaying = true;
+    audio.play();
+    audio.onended = () => {
+      STATE.audioPlaying = false;
+      URL.revokeObjectURL(audioUrl);
+      hideAudioStatus();
+      if (onDone) onDone();
+    };
+  } catch (err) {
+    console.error('Speech error:', err);
+    hideAudioStatus();
+    if (onDone) onDone();
+  }
+}
+
+function showAudioStatus(msg) {
+  const el = document.getElementById('audioStatus');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+function hideAudioStatus() {
+  document.getElementById('audioStatus').classList.remove('visible');
+}
+
+// ===== PILOT ASIDE =====
+function getPilotAside(scene) {
+  const asides = {
+    opening: {
+      mommy: "I want you to know I have been fully prepared since seven a.m. I made a list. I lost the list. But I remember most of it. We are going to be fine.",
+      daddy: "Daddy. Between us. I have a map. I checked it twice. I am fairly confident it is right side up this time. Fairly.",
+      sissy: "Sissy. I know you know what you are doing out here. Between the two of us this treasure does not stand a chance. Mostly because of you. But I am here too.",
+      guest: `${STATE.guestName || 'Friend'}. I am so glad you are here today. Summer is lucky to have you. Just follow my lead. I have a plan. Mostly.`,
+    },
+    treasure: {
+      mommy: "I am not crying. It is the sand. There is a lot of sand out here.",
+      daddy: "Daddy. You built something really special here. I just want you to know that. Also West is a genius. That one comes from you.",
+      sissy: "You did good today Sissy. You always do good. Summer is lucky to have you.",
+      guest: `${STATE.guestName || 'Friend'}. Thank you for being here today. You made this adventure possible.`,
+    },
+    dance: {
+      mommy: "I have been practicing this for weeks. I think it shows. Please do not tell anyone how long I practiced.",
+      daddy: "Daddy. This dance is for you. I want you to know I gave it everything I had. Everything.",
+      sissy: "Sissy. Between us. I looked up some dance moves online. I think it shows.",
+      guest: "I have been saving this dance for a very special occasion. This is that occasion.",
+    }
+  };
+  return asides[scene]?.[STATE.pilot] || asides[scene]?.['guest'] || '';
+}
+
+// ===== OPIE IMAGE SWITCH =====
+function setOpieImage(pose) {
+  const img = document.getElementById('opieImg');
+  if (IMAGES && IMAGES[`opie-${pose}`]) {
+    img.style.opacity = '0';
+    setTimeout(() => {
+      img.src = IMAGES[`opie-${pose}`];
+      img.style.opacity = '1';
+    }, 200);
+  }
+}
+
+function setMiaImage(pose) {
+  const img = document.getElementById('miaImg');
+  if (IMAGES && IMAGES[`mia-${pose}`]) {
+    img.src = IMAGES[`mia-${pose}`];
+  }
+}
+
+// ===== MIA ENTRANCE / EXIT =====
+function showMia(onDone) {
+  const img = document.getElementById('miaImg');
+  STATE.miaVisible = true;
+  img.classList.remove('hidden', 'exiting');
+  img.classList.add('entering');
+  setMiaImage('1-neutral');
+  setTimeout(() => {
+    img.classList.remove('entering');
+    if (onDone) onDone();
+  }, 700);
+}
+
+function hideMia(onDone) {
+  const img = document.getElementById('miaImg');
+  img.classList.remove('entering');
+  img.classList.add('exiting');
+  setTimeout(() => {
+    img.classList.add('hidden');
+    img.classList.remove('exiting');
+    STATE.miaVisible = false;
+    if (onDone) onDone();
+  }, 900);
+}
+
+// ===== PILOT PROMPT =====
+function showPilotPrompt(text, duration) {
+  const el = document.getElementById('pilotPrompt');
+  document.getElementById('pilotPromptText').textContent = text;
+  el.classList.remove('hidden');
+  if (duration) {
+    setTimeout(() => el.classList.add('hidden'), duration);
+  }
+}
+
+function hidePilotPrompt() {
+  document.getElementById('pilotPrompt').classList.add('hidden');
+}
+
+// ===== SPEECH BUBBLE =====
+function setSpeech(speaker, text, voiceKey, onDone) {
+  document.getElementById('speakerTag').textContent = speaker.toUpperCase();
+  document.getElementById('speechText').textContent = text;
+  if (CONFIG.ELEVENLABS_API_KEY !== 'de2fee4c26b6343e5b865dd7ab841cdb4255da5e895abad00a26286c5255920a') {
+    speak(text, voiceKey, onDone);
+  } else {
+    setTimeout(onDone || (() => {}), text.length * 40 + 800);
+  }
+}
+
+// ===== ACTION BUTTONS =====
+function setActions(buttons) {
+  const area = document.getElementById('actionArea');
+  area.innerHTML = '';
+  buttons.forEach(btn => {
+    const el = document.createElement('button');
+    el.className = btn.class || 'btn-next';
+    el.textContent = btn.label;
+    el.onclick = btn.action;
+    area.appendChild(el);
+  });
+}
+
+function clearActions() {
+  document.getElementById('actionArea').innerHTML = '';
+}
+
+// ===== PROGRESS =====
+function setProgress(pct) {
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// ===== WHISPER MODE =====
+function setWhisper(on) {
+  document.getElementById('whisperOverlay').classList.toggle('active', on);
+  setOpieImage(on ? '6-whisper' : '1-neutral');
+}
+
+// ===== THE STORY BEATS =====
+// Each beat: { run: function }
+// Beats drive the whole story sequence
+
+function runBeat(n) {
+  STATE.currentBeat = n;
+  setProgress(Math.round((n / 18) * 100));
+  const beats = STORY_BEATS;
+  if (n >= beats.length) { showCelebration(); return; }
+  beats[n]();
+}
+
+function nextBeat() { runBeat(STATE.currentBeat + 1); }
+
+const STORY_BEATS = [
+
+  // BEAT 0: EVE INTRO
+  function() {
+    setOpieImage('1-neutral');
+    hidePilotPrompt();
+    clearActions();
+    setSpeech('Eve', 'Once upon a time, on a sunny afternoon in the most magical backyard in all of Texas, a very brave explorer named Summer was getting ready for the most important adventure of her whole entire life.', 'eve', () => {
+      setSpeech('Eve', 'And waiting for her, right next to the treehouse, was someone who had been looking forward to this all day.', 'eve', () => {
+        setOpieImage('2-welcome');
+        nextBeat();
+      });
+    });
+  },
+
+  // BEAT 1: OPIE ENTRANCE
+  function() {
+    setSpeech('Opie', 'SUMMER! You are HERE! I have been waiting since, I think, Tuesday. Or possibly this morning. Time moves differently when you are this excited.', 'opie', () => {
+      setActions([{ label: "Hi Opie! 👋", class: 'btn-next', action: nextBeat }]);
+    });
+  },
+
+  // BEAT 2: PILOT ASIDE - OPENING
+  function() {
+    clearActions();
+    setWhisper(true);
+    const aside = getPilotAside('opening');
+    showPilotPrompt('Opie has something to say to you...', 6000);
+    setSpeech('Opie', aside, 'opie', () => {
+      setWhisper(false);
+      hidePilotPrompt();
+      nextBeat();
+    });
+  },
+
+  // BEAT 3: OPIE MESSAGE FROM PILOT (if any)
+  function() {
+    if (STATE.opieMessage) {
+      setOpieImage('6-whisper');
+      setWhisper(true);
+      setSpeech('Opie', `Oh! I almost forgot. I have a very important message. I wrote it down somewhere. I am a professional.`, 'opie', () => {
+        setSpeech('Opie', STATE.opieMessage, 'opie', () => {
+          setWhisper(false);
+          setOpieImage('2-welcome');
+          nextBeat();
+        });
+      });
+    } else {
+      nextBeat();
+    }
+  },
+
+  // BEAT 4: THE MAP / WEST'S STORY
+  function() {
+    setOpieImage('3-confused');
+    setSpeech('Opie', "Now. Summer. I have very important news. Your brother West told me everything. He said pirates came through this exact yard. There was a sword fight, right over there by the treehouse, and during the sword fight, treasure fell right out of their chest. Doubloons, Summer. Bronze ones and silver ones and gold ones. All buried in the sand.", 'opie', () => {
+      setSpeech('Opie', "West is very smart. I verified his information. Mostly.", 'opie', () => {
+        setActions([{ label: "Let's find it! 🏴‍☠️", class: 'btn-next', action: nextBeat }]);
+      });
+    });
+  },
+
+  // BEAT 5: METAL DETECTOR
+  function() {
+    clearActions();
+    setOpieImage('2-welcome');
+    setSpeech('Opie', "Okay. This is the moment. Sissy has the detector. West is ready with his shovel. And Summer, your job, the most important job, is to be right in the middle of it all. Because nothing good happens without Summer right in the middle of it.", 'opie', () => {
+      setSpeech('Opie', "WAIT. Did you hear that? SISSY! WEST! DIG RIGHT THERE!", 'opie', () => {
+        setOpieImage('4-frozen');
+        setSpeech('Opie', "Come on come on come on...  Hmm. This is a bottle cap. I am going to put this in my pocket because it might be important later. It is probably not important later.", 'opie', () => {
+          setOpieImage('5-proud');
+          setSpeech('Opie', "We keep going. The treasure is here. West is never wrong about these things.", 'opie', () => {
+            setActions([{ label: "Keep looking! 🔍", class: 'btn-next', action: nextBeat }]);
+          });
+        });
+      });
+    });
+  },
+
+  // BEAT 6: MIA ENTRANCE
+  function() {
+    clearActions();
+    setOpieImage('1-neutral');
+    setSpeech('Opie', "Now according to my calculations the treasure should be approximately... carry the two...", 'opie', () => {
+      setOpieImage('4-frozen');
+      setSpeech('Opie', "I want everyone to know that I am a professional. I have trained for this. I am completely in control of myself at all times.", 'opie', () => {
+        setSpeech('Opie', "But if Mia starts something today I cannot be held responsible.", 'opie', () => {
+          showPilotPrompt("Summer might say Mia's name here! If she does, make a huge deal of it!", 8000);
+          setSpeech('Opie', "MIA.", 'opie', () => {
+            showMia(() => {
+              setMiaImage('2-skeptical');
+              setSpeech('Mia', "I was here first.", 'mia', () => {
+                hideMia(() => {
+                  hidePilotPrompt();
+                  setOpieImage('3-confused');
+                  setSpeech('Opie', "She was not here first. I arrived at seven this morning. I have documentation.", 'opie', () => {
+                    setSpeech('Opie', "She is fine. I am fine. Everything is fine. Where were we. The treasure. Yes.", 'opie', () => {
+                      setOpieImage('1-neutral');
+                      setSpeech('Opie', "Oh. The map is upside down. The treasure is by the treehouse. It has always been by the treehouse. I knew that. That was not a mistake, that was a journey. There is a difference.", 'opie', () => {
+                        setActions([{ label: "To the treehouse! 🌳", class: 'btn-next', action: nextBeat }]);
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      });
+    });
+  },
+
+  // BEAT 7: FIRST WORD - DOG
+  function() {
+    clearActions();
+    setOpieImage('3-confused');
+    hidePilotPrompt();
+    setSpeech('Opie', "Wait. Summer. The map says the treasure is buried near something very important. Something that starts with a D sound. Duh. I cannot remember the word. My brain keeps thinking about the bottle cap.", 'opie', () => {
+      showPilotPrompt("Help Opie out! Say 'Oh! Is it a DOG, Opie?' naturally, like you just thought of it. Then give Summer a chance to say it too!", 0);
+      setSpeech('Eve', "Hmm. What could it be, Summer? What do we find in the yard that starts with D?", 'eve', () => {
+        setActions([
+          { label: "Summer said DOG! 🐕", class: 'btn-attempt', action: () => wordSuccess('dog') },
+          { label: "She needs more help", class: 'btn-encourage', action: wordEncourage },
+        ]);
+      });
+    });
+  },
+
+  // BEAT 8: DOG SUCCESS
+  function() {
+    clearActions();
+    hidePilotPrompt();
+    setOpieImage('2-welcome');
+    showPilotPrompt("She did it! Make it a big deal RIGHT NOW! Clap, cheer, tell her she did it!", 5000);
+    setSpeech('Opie', "DOG! That is exactly right! And dogs LOVE to dig! That is the clue! The treasure is buried where the dog digs! West knew this. I should have asked West sooner.", 'opie', () => {
+      setSpeech('Opie', `Did everyone hear that?! Summer said it! ${getPilotName()}! Did you hear Summer?!`, 'opie', () => {
+        hidePilotPrompt();
+        setSpeech('Opie', "That is the bravest word I have heard all day. Possibly all week.", 'opie', () => {
+          setActions([{ label: "Find the treasure! ⭐", class: 'btn-next', action: nextBeat }]);
+        });
+      });
+    });
+  },
+
+  // BEAT 9: THE DIG
+  function() {
+    clearActions();
+    setOpieImage('2-welcome');
+    setSpeech('Opie', "THERE! RIGHT THERE! THIS IS IT! I CAN FEEL IT IN MY PAWS!", 'opie', () => {
+      setOpieImage('3-confused');
+      setSpeech('Opie', "Come on come on come on...", 'opie', () => {
+        setSpeech('Eve', "And then. The shovel hit something. Something solid. Something metal.", 'eve', () => {
+          setOpieImage('1-neutral');
+          setSpeech('Opie', "....oh.", 'opie', () => {
+            setSpeech('Opie', "West was right. West was completely right. Pirates were here. There was a sword fight. Right in this yard. And this fell out of their treasure chest. And it has been here ever since. Waiting. For you.", 'opie', () => {
+              setSpeech('Opie', "You found what the pirates lost, Summer.", 'opie', () => {
+                nextBeat();
+              });
+            });
+          });
+        });
+      });
+    });
+  },
+
+  // BEAT 10: PILOT ASIDE - TREASURE
+  function() {
+    setWhisper(true);
+    const aside = getPilotAside('treasure');
+    showPilotPrompt('Opie has a special message just for you...', 0);
+    setSpeech('Opie', aside, 'opie', () => {
+      setWhisper(false);
+      hidePilotPrompt();
+      setActions([{ label: "The treasure ceremony! 🔑", class: 'btn-next', action: nextBeat }]);
+    });
+  },
+
+  // BEAT 11: SECOND WORD - DIG
+  function() {
+    clearActions();
+    setOpieImage('3-confused');
+    setSpeech('Opie', "Now. Before we do the official treasure ceremony, I need to know one more thing.", 'opie', () => {
+      setSpeech('Opie', "Summer. What did we just do to find that treasure? We...", 'opie', () => {
+        showPilotPrompt("Model it for her! Mime digging and say 'We DIG, Opie!' Let Summer jump in!", 0);
+        setSpeech('Eve', "What do you think, Summer? What did we do?", 'eve', () => {
+          setActions([
+            { label: "Summer said DIG! ⛏️", class: 'btn-attempt', action: () => wordSuccess('dig') },
+            { label: "She needs more help", class: 'btn-encourage', action: wordEncourage2 },
+          ]);
+        });
+      });
+    });
+  },
+
+  // BEAT 12: DIG SUCCESS
+  function() {
+    clearActions();
+    hidePilotPrompt();
+    setOpieImage('2-welcome');
+    showPilotPrompt("Celebrate! She's doing the work right now!", 4000);
+    setSpeech('Opie', "DIG! We dug for treasure! And Summer, every single time you said a brave word today, that was one more dig. You dug this treasure up with your words. I have documentation.", 'opie', () => {
+      hidePilotPrompt();
+      setActions([{ label: "The chest! The key! 🗝️", class: 'btn-next', action: nextBeat }]);
+    });
+  },
+
+  // BEAT 13: THE RITUAL
+  function() {
+    clearActions();
+    setOpieImage('5-proud');
+    setSpeech('Opie', "Okay. Now. This is the important part. West taught me this. You do not just put treasure away. You do it right.", 'opie', () => {
+      setSpeech('Eve', "First, you clean it off. Every piece. Because treasure that has been in the ground deserves to be seen properly.", 'eve', () => {
+        setSpeech('Opie', "There. Look at that. A real pirate doubloon. Bronze. From a real sword fight. In this exact yard.", 'opie', () => {
+          showPilotPrompt("This is a big moment. Take your time here. Help Summer with the key if she needs it.", 0);
+          setSpeech('Opie', "Summer. You found this today. That means you are the one who unlocks it.", 'opie', () => {
+            setActions([{ label: "Summer unlocked the chest! 🎊", class: 'btn-next', action: nextBeat }]);
+          });
+        });
+      });
+    });
+  },
+
+  // BEAT 14: THIRD WORD - DONE
+  function() {
+    clearActions();
+    hidePilotPrompt();
+    setOpieImage('5-proud');
+    setSpeech('Opie', "Done.", 'opie', () => {
+      setSpeech('Opie', "Done. Official. That treasure belongs to this family now and nobody can take it back. Not even the pirates. Especially not the pirates.", 'opie', () => {
+        showPilotPrompt("Can Summer say 'Done'? Try it together! 'Done! We're done!' Give her a chance.", 0);
+        setActions([
+          { label: "Summer said DONE! ✅", class: 'btn-attempt', action: () => wordSuccess('done') },
+          { label: "She needs more help", class: 'btn-encourage', action: () => {
+            hidePilotPrompt();
+            setSpeech('Opie', "DONE! Summer said Done! The ceremony is complete! It is official because Summer said so!", 'opie', () => {
+              hidePilotPrompt();
+              nextBeat();
+            });
+          }},
+        ]);
+      });
+    });
+  },
+
+  // BEAT 15: BUILD TO CELEBRATION
+  function() {
+    clearActions();
+    hidePilotPrompt();
+    setOpieImage('2-welcome');
+    setSpeech('Opie', "Summer. You were so brave today. You said brave words and you helped find real treasure and you did the official ceremony exactly right.", 'opie', () => {
+      setSpeech('Opie', "And you know what that means?", 'opie', () => {
+        setTimeout(() => {
+          setSpeech('Opie', "It means we now get tooooooo...", 'opie', () => {
+            showPilotPrompt("DANCE WITH HER! Pick Summer up, clap, spin, whatever she loves. This is her moment!", 0);
+            setTimeout(() => {
+              setSpeech('Opie', "DANCE!", 'opie', () => {
+                hidePilotPrompt();
+                showCelebration();
+              });
+            }, 1200);
+          });
+        }, 800);
+      });
+    });
+  },
+
+];
+
+// ===== WORD ATTEMPT HANDLING =====
+function wordSuccess(word) {
+  STATE.wordAttempts[word]++;
+  hidePilotPrompt();
+  clearActions();
+  spawnStars();
+  nextBeat();
+}
+
+function wordEncourage() {
+  hidePilotPrompt();
+  clearActions();
+  setOpieImage('2-welcome');
+  showPilotPrompt("Give her a moment. Try saying 'Dog! Can you say Dog, Summer?' together!", 0);
+  setSpeech('Opie', "You know this one Summer. I can see you thinking about it. Take your time. I am very patient. I am the most patient person here. Ask anyone.", 'opie', () => {
+    hidePilotPrompt();
+    setActions([
+      { label: "Summer said DOG! 🐕", class: 'btn-attempt', action: () => wordSuccess('dog') },
+      { label: "Move on for now", class: 'btn-encourage', action: () => { STATE.currentBeat = 8; runBeat(8); } },
+    ]);
+  });
+}
+
+function wordEncourage2() {
+  hidePilotPrompt();
+  clearActions();
+  setOpieImage('2-welcome');
+  showPilotPrompt("Try saying 'Dig, dig, dig!' together while you mime it. Make it fun!", 0);
+  setSpeech('Opie', "Dig! Dig! Dig! Like this Summer, watch me!", 'opie', () => {
+    hidePilotPrompt();
+    setActions([
+      { label: "Summer said DIG! ⛏️", class: 'btn-attempt', action: () => wordSuccess('dig') },
+      { label: "Move on for now", class: 'btn-encourage', action: () => { STATE.currentBeat = 12; runBeat(12); } },
+    ]);
+  });
+}
+
+// ===== CELEBRATION =====
+function showCelebration() {
+  showScreen('screen-celebration');
+  startConfetti();
+  const pilot = STATE.pilot;
+  const songMap = CONFIG.SONGS;
+  const song = songMap[pilot] || songMap.summer;
+  document.getElementById('celebText').textContent = "YOU DID IT, SUMMER! 🌟";
+  document.getElementById('celebSubText').textContent =
+    `Time to dance to ${song}!`;
+
+  setTimeout(() => {
+    const aside = getPilotAside('dance');
+    document.getElementById('celebSubText').textContent = aside;
+  }, 4000);
+}
+
+function showGoodbye() {
+  stopConfetti();
+  showScreen('screen-goodbye');
+  document.getElementById('goodbyeText').textContent =
+    "What an adventure today. You found real pirate treasure! I already have another map. There is more treasure out there. West told me. And next time I am going to check the map before we start. Probably.";
+  if (typeof IMAGES !== 'undefined' && IMAGES['opie-6-whisper']) {
+    setTimeout(() => {
+      document.getElementById('goodbyeOpieImg').src = IMAGES['opie-6-whisper'];
+      setTimeout(() => {
+        document.getElementById('goodbyeOpieImg').src = IMAGES['opie-2-welcome'];
+      }, 2500);
+    }, 1500);
+  }
+}
+
+// ===== CONFETTI =====
+let confettiInterval = null;
+const confettiColors = ['#FF6B6B','#FFE66D','#4ECDC4','#FF8C42','#A855F7','#22C55E'];
+
+function startConfetti() {
+  const wrap = document.getElementById('confettiWrap');
+  wrap.innerHTML = '';
+  let count = 0;
+  confettiInterval = setInterval(() => {
+    if (count > 80) return;
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+    piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    piece.style.animationDelay = (Math.random() * 0.5) + 's';
+    piece.style.width = (Math.random() * 8 + 6) + 'px';
+    piece.style.height = (Math.random() * 8 + 6) + 'px';
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    wrap.appendChild(piece);
+    count++;
+  }, 80);
+}
+
+function stopConfetti() {
+  if (confettiInterval) clearInterval(confettiInterval);
+  document.getElementById('confettiWrap').innerHTML = '';
+}
+
+// ===== STARS =====
+function spawnStars() {
+  const stage = document.getElementById('screen-session');
+  const emojis = ['⭐','🌟','✨','💫'];
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => {
+      const star = document.createElement('div');
+      star.className = 'star';
+      star.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      star.style.left = (20 + Math.random() * 60) + '%';
+      star.style.top = (20 + Math.random() * 50) + '%';
+      star.style.zIndex = 50;
+      star.style.position = 'absolute';
+      stage.appendChild(star);
+      setTimeout(() => star.remove(), 1600);
+    }, i * 150);
+  }
+}
+
+// ===== SCREEN NAVIGATION =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function restartSession() {
+  STATE = {
+    pilot: null, guestName: null, guestRelationship: null, guestAge: null,
+    mood: null, opieMessage: null, currentBeat: 0,
+    wordAttempts: { dog: 0, dig: 0, done: 0 },
+    audioPlaying: false, miaVisible: false,
+  };
+  document.querySelectorAll('.pilot-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('opieMessageInput').value = '';
+  document.getElementById('guestForm').classList.remove('visible');
+  showScreen('screen-welcome');
+}
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  setupImages();
+});
+
+</script>
+</body>
+</html>
