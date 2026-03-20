@@ -777,12 +777,12 @@
   </div>
 </div>
 
-<script src="assets/images.js"></script>
+<script src="images.js"></script>
 <script>
 
 // ===== CONFIGURATION =====
 const CONFIG = {
-  ELEVENLABS_API_KEY: 'de2fee4c26b6343e5b865dd7ab841cdb4255da5e895abad00a26286c5255920a',
+  ELEVENLABS_API_KEY: '7eb5237731263b324eea8ffab6701ad9ef433351cdd0fdba60a585b6d8e0b0cc',
   VOICES: {
     eve:  'BZgkqPqms7Kj9ulSkVzn',
     opie: 'cFyNSyiOwHxKoooXUS5f',
@@ -1015,7 +1015,7 @@ function hidePilotPrompt() {
 function setSpeech(speaker, text, voiceKey, onDone) {
   document.getElementById('speakerTag').textContent = speaker.toUpperCase();
   document.getElementById('speechText').textContent = text;
-  if (CONFIG.ELEVENLABS_API_KEY !== 'de2fee4c26b6343e5b865dd7ab841cdb4255da5e895abad00a26286c5255920a') {
+  if (CONFIG.ELEVENLABS_API_KEY !== '7eb5237731263b324eea8ffab6701ad9ef433351cdd0fdba60a585b6d8e0b0cc') {
     speak(text, voiceKey, onDone);
   } else {
     setTimeout(onDone || (() => {}), text.length * 40 + 800);
